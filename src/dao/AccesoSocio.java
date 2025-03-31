@@ -12,6 +12,7 @@ import java.util.List;
 import org.sqlite.SQLiteConfig;
 
 import config.ConfigSQLite;
+import entrada.Teclado;
 import exceptions.BDException;
 import models.Socio;
 
@@ -101,13 +102,15 @@ public class AccesoSocio {
 	}
 	//4. CONSULTAR SOCIO POR LOCALIDAD(parametro) ORDENADOS POR NOMBRE ASC
 	public static ArrayList<Socio> consultarSociosLocalidad(String localidad) throws BDException{
-		ArrayList<Socio> todosSocios = new ArrayList<Socio>();
+		ArrayList<Socio> todosSociosLocalidad = new ArrayList<Socio>();
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
 	    try {
 	    	conexion = ConfigSQLite.abrirConexion();
-	    	 String queryString = "SELECT * FROM socio";
+	    	 String queryString = "SELECT * FROM socio WHERE localidad = ?";
 	    	 ps = conexion.prepareStatement(queryString);
+		     ps.setString(1, localidad);
+
 	    	 ResultSet resultados = ps.executeQuery();
 	    	 
 	    	 while (resultados.next()) {
@@ -119,7 +122,7 @@ public class AccesoSocio {
 	    		 String correoSocio = resultados.getString("correo");
 
 	    		 Socio socio = new Socio(codigoSocio, dniSocio, nombreSocio, domicilioSocio, telefonoSocio, correoSocio);
-	    		 todosSocios.add(socio);
+	    		 todosSociosLocalidad.add(socio);
 
 	    	 }
 	    }catch (SQLException e) {
@@ -129,14 +132,18 @@ public class AccesoSocio {
 	            ConfigSQLite.cerrarConexion(conexion);
 	        }
 	    }
-	    return todosSocios;
+	    return todosSociosLocalidad;
 	}
 	//5. CONSULTAR SOCIOS SIN PRESTAMOS
+	public static ArrayList<Socio> consultarSociosNoPrestatario(){
+		
+	}
 	//6. CONSULTAR SOCIOS CON PRESTAMOS
 
 	/*public static void main(String[] args) {
 		try {
-			ArrayList<Socio> arraySocios = consultarTodosSocios();
+			String localidadString = Teclado.leerCadena("Localidad?");
+			ArrayList<Socio> arraySocios = consultarSociosLocalidad(localidadString);
 			if (arraySocios.isEmpty()) {
 				System.out.println("La lista de socios esta vacia");
 			}else {
