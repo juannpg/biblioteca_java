@@ -4,4 +4,6 @@
 /**
  *
  */
-module biblioteca {}
+module biblioteca {
+	requires java.sql;
+	requires org.xerial.sqlitejdbc;}
