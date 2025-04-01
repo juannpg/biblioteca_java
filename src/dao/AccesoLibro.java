@@ -23,7 +23,7 @@ public class AccesoLibro {
 		int filas = 0;
 
 		try {
-			// Conexi�n a la bd
+			
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "insert into libro (isbn, titulo, escritor, anyo_publicacion, puntuacion ) VALUES (?, ?, ?, ?, ?);";
 
@@ -59,7 +59,7 @@ public class AccesoLibro {
 		int filas = 0;
 
 		try {
-			// Conexi�n a la bd
+			
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "delete from libro where codigo = ?;";
 
@@ -90,7 +90,7 @@ public class AccesoLibro {
 		Connection conexion = null;
 
 		try {
-			// Conexi�n a la bd
+			
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "select * from libro;";
 
@@ -130,7 +130,7 @@ public class AccesoLibro {
 		Connection conexion = null;
 
 		try {
-			// Conexi�n a la bd
+			
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "select * from libro where lower(escritor) like '%?%' order by puntuacion desc;";
 
@@ -171,7 +171,7 @@ public class AccesoLibro {
 		Connection conexion = null;
 
 		try {
-			// Conexi�n a la bd
+			
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.codigo_libro is null;";
 
@@ -212,7 +212,7 @@ public class AccesoLibro {
 			Connection conexion = null;
 
 			try {
-				// Conexi�n a la bd
+				
 				conexion = ConfigSQLite.abrirConexion();
 				String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.fecha_devolucion like '?';";
 
