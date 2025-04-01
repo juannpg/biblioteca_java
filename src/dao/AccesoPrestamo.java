@@ -111,5 +111,46 @@ public class AccesoPrestamo {
         
         return filasAfectadas == 1;
 	}
+	
+	public static boolean actualizarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException {
+		Connection conexion = null;
+		int filasAfectadas = 0;
+		
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+
+        	// comprobamos si el libro está prestado
+        	boolean estaPrestado = estaLibroPrestado(codigoLibro);
+        	if (estaPrestado) {
+        		throw new ExcepcionPrestamo(ExcepcionPrestamo.ESTA_PRESTADO);
+        	}
+          
+            // comprobamos si el socio tiene algún préstamo activo
+            boolean tieneLibroPrestado = tieneLibroPrestado(codigoSocio);
+            if (tieneLibroPrestado) {
+        		throw new ExcepcionPrestamo(ExcepcionPrestamo.TIENE_PRESTADO);
+            }
+            
+            // lo demás
+            String queryInsert = "insert into prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin)"
+            + " values (?, ?, ? ,?)";
+            PreparedStatement psInsert = conexion.prepareStatement(queryInsert);
+            
+            psInsert.setInt(1, codigoLibro);
+            psInsert.setInt(2, codigoSocio);
+            psInsert.setString(3,  fechaInicio);
+            psInsert.setString(4, fechaFin);
+            
+            filasAfectadas = psInsert.executeUpdate();
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return filasAfectadas == 1;
+	}
 }
 
