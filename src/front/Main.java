@@ -1,6 +1,14 @@
 package front;
 
+import java.util.ArrayList;
+
+import dao.AccesoLibro;
+import dao.AccesoPrestamo;
+import dao.AccesoSocio;
+
 import entrada.Teclado;
+import exceptions.BDException;
+import models.Libro;
 
 public class Main {
 
@@ -11,7 +19,8 @@ public class Main {
 		System.out.println("1) Insertar un libro en la base de datos");
 		System.out.println("2) Eliminar un libro, por código, de la base de datos");
 		System.out.println("3) Consultar todos los libros de la base de datos.");
-		System.out.println("4) Consultar varios libros, por escritor, de la base de datos, ordenados por puntuación decendente.");
+		System.out.println(
+				"4) Consultar varios libros, por escritor, de la base de datos, ordenados por puntuación decendente.");
 		System.out.println("5) Consultar los libros no prestados de la base de datos.");
 		System.out.println("6) Consultar los libros devueltos, en una fecha, de la base de datos.");
 
@@ -25,7 +34,8 @@ public class Main {
 		System.out.println("1) Insertar un socio en la base de datos");
 		System.out.println("2) Eliminar un socio, por código, de la base de datos");
 		System.out.println("3) Consultar todos los socios de la base de datos.");
-		System.out.println("4) Consultar varios socios, por localidad, de la base de datos, ordenados por nombre ascendiente.");
+		System.out.println(
+				"4) Consultar varios socios, por localidad, de la base de datos, ordenados por nombre ascendiente.");
 		System.out.println("5) Consultar los socios sin prestamos de la base de datos.");
 		System.out.println("6) Consultar los socios con prestamos, en una fecha, de la base de datos.");
 
@@ -47,57 +57,78 @@ public class Main {
 
 	public static void menuLibros() {
 		int opcion;
-		do {
-			escribirMenuOpcionesLibro();
-			opcion = Teclado.leerEntero("Opción: ");
+		try {
 
-			switch (opcion) {
-			case 1:
-				System.out.println("Insertar libro...");
-		        // Pedir datos al usuario
-		        String isbn = Teclado.leerCadena("Introduce el ISBN: ");
-		        String titulo = Teclado.leerCadena("Introduce el título: ");
-		        String escritor = Teclado.leerCadena("Introduce el escritor: ");
-		        int anyoPublicacion = Teclado.leerEntero("Introduce el año de publicación: ");
-		        float puntuacion = (float) Teclado.leerReal("Introduce la puntuación: ");
-		        
-		        try {
-		            boolean resultado = anadirLibro(isbn, titulo, escritor, anyoPublicacion, puntuacion);
+			do {
+				escribirMenuOpcionesLibro();
+				opcion = Teclado.leerEntero("Opción: ");
 
-		            if (resultado) {
-		                System.out.println("Libro añadido correctamente.");
-		            } else {
-		                System.out.println("No se pudo añadir el libro.");
-		            }
-		        } catch (BDException e) {
-		            System.out.println("Error al añadir el libro: " + e.getMessage());
-		        }
+				switch (opcion) {
+				case 1:
+					System.out.println("Insertar libro...");
+					// Pedir datos al usuario
+					String isbn = Teclado.leerCadena("Introduce el ISBN: ");
+					String titulo = Teclado.leerCadena("Introduce el título: ");
+					String escritor = Teclado.leerCadena("Introduce el escritor: ");
+					int anyoPublicacion = Teclado.leerEntero("Introduce el año de publicación: ");
+					float puntuacion = (float) Teclado.leerReal("Introduce la puntuación: ");
 
-		        
-		        
-				break;
-			case 2:
-				System.out.println("Eliminar libro...");
-				break;
-			case 3:
-				System.out.println("Consultar todos los libros...");
-				break;
-			case 4:
-				System.out.println("Consultar libros por escritor...");
-				break;
-			case 5:
-				System.out.println("Consultar libros no prestados...");
-				break;
-			case 6:
-				System.out.println("Consultar libros devueltos en una fecha...");
-				break;
-			case 0:
-				System.out.println("Regresando al menú principal...");
-				break;
-			default:
-				System.out.println("Opción no válida. Intente de nuevo.");
-			}
-		} while (opcion != 0);
+					boolean anadiLibro = AccesoLibro.anadirLibro(isbn, titulo, escritor, anyoPublicacion, puntuacion);
+
+					if (anadiLibro) {
+						System.out.println("Libro añadido correctamente.");
+					} else {
+						System.out.println("No se pudo añadir el libro.");
+					}
+
+					break;
+				case 2:
+					System.out.println("Eliminar libro...");
+					//pedir datos al usuario
+					int codigo = Teclado.leerEntero("Introduce el código del libro: ");
+					
+					boolean borrarLibroPorCodigo = AccesoLibro.borrarLibroPorCodigo(codigo);
+					
+					if (borrarLibroPorCodigo) {
+						System.out.println("Libro eliminado correctamente.");
+
+					} else {
+						System.out.println("No se pudo eliminar el librp.");
+
+					}
+					
+					break;
+				case 3:
+					System.out.println("Consultar todos los libros...");
+					ArrayList<Libro> consultarLibros =AccesoLibro.consultarLibros();
+					
+					if(consultarLibros.isEmpty()) {
+						System.out.println("No hay ningun libro en la coleccion");
+					} else {
+						System.out.println(consultarLibros);
+					}
+					
+					break;
+				case 4:
+					System.out.println("Consultar libros por escritor...");
+					break;
+				case 5:
+					System.out.println("Consultar libros no prestados...");
+					break;
+				case 6:
+					System.out.println("Consultar libros devueltos en una fecha...");
+					break;
+				case 0:
+					System.out.println("Regresando al menú principal...");
+					break;
+				default:
+					System.out.println("Opción no válida. Intente de nuevo.");
+				}
+			} while (opcion != 0);
+		} catch (BDException e) {
+			System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+
+		}
 	}
 
 	public static void menuSocios() {
@@ -139,7 +170,6 @@ public class Main {
 		do {
 			escribirMenuOpcionesPrestamo();
 			opcion = Teclado.leerEntero("Opción: ");
-			
 
 			switch (opcion) {
 			case 1:
@@ -184,24 +214,24 @@ public class Main {
 			System.out.print("Opción: ");
 			opcion = Teclado.leerEntero("Opcion: ");
 
-			 switch (opcion) {
-             case 1:
-                 menuLibros();
-                 break;
-             case 2:
-                 menuSocios();
-                 break;
-             case 3:
-                 menuPrestamos();
-                 break;
-             case 0:
-                 System.out.println("Saliendo del programa...");
-                 break;
-             default:
-                 System.out.println("Opción no válida. Intente de nuevo.");
-         }
-     } while (opcion != 0);
- }
+			switch (opcion) {
+			case 1:
+				menuLibros();
+				break;
+			case 2:
+				menuSocios();
+				break;
+			case 3:
+				menuPrestamos();
+				break;
+			case 0:
+				System.out.println("Saliendo del programa...");
+				break;
+			default:
+				System.out.println("Opción no válida. Intente de nuevo.");
+			}
+		} while (opcion != 0);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
