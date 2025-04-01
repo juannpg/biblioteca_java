@@ -118,28 +118,16 @@ public class AccesoPrestamo {
 		
         try {
             conexion = ConfigSQLite.abrirConexion();
-
-        	// comprobamos si el libro está prestado
-        	boolean estaPrestado = estaLibroPrestado(codigoLibro);
-        	if (estaPrestado) {
-        		throw new ExcepcionPrestamo(ExcepcionPrestamo.ESTA_PRESTADO);
-        	}
-          
-            // comprobamos si el socio tiene algún préstamo activo
-            boolean tieneLibroPrestado = tieneLibroPrestado(codigoSocio);
-            if (tieneLibroPrestado) {
-        		throw new ExcepcionPrestamo(ExcepcionPrestamo.TIENE_PRESTADO);
-            }
             
-            // lo demás
-            String queryInsert = "insert into prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin)"
-            + " values (?, ?, ? ,?)";
-            PreparedStatement psInsert = conexion.prepareStatement(queryInsert);
+            String queryUpdate = "update prestamo "
+            + "set fecha_inicio = ?, fecha_fin = ? "
+            + "where codigo_libro = ? and codigo_socio = ?";
+            PreparedStatement psInsert = conexion.prepareStatement(queryUpdate);
             
-            psInsert.setInt(1, codigoLibro);
-            psInsert.setInt(2, codigoSocio);
-            psInsert.setString(3,  fechaInicio);
-            psInsert.setString(4, fechaFin);
+            psInsert.setString(1,  fechaInicio);
+            psInsert.setString(2, fechaFin);
+            psInsert.setInt(3, codigoLibro);
+            psInsert.setInt(4, codigoSocio);
             
             filasAfectadas = psInsert.executeUpdate();
         } catch (SQLException e) {
