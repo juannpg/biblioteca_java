@@ -54,7 +54,27 @@ public class Main {
 			switch (opcion) {
 			case 1:
 				System.out.println("Insertar libro...");
-				añadir
+		        // Pedir datos al usuario
+		        String isbn = Teclado.leerCadena("Introduce el ISBN: ");
+		        String titulo = Teclado.leerCadena("Introduce el título: ");
+		        String escritor = Teclado.leerCadena("Introduce el escritor: ");
+		        int anyoPublicacion = Teclado.leerEntero("Introduce el año de publicación: ");
+		        float puntuacion = (float) Teclado.leerReal("Introduce la puntuación: ");
+		        
+		        try {
+		            boolean resultado = anadirLibro(isbn, titulo, escritor, anyoPublicacion, puntuacion);
+
+		            if (resultado) {
+		                System.out.println("Libro añadido correctamente.");
+		            } else {
+		                System.out.println("No se pudo añadir el libro.");
+		            }
+		        } catch (BDException e) {
+		            System.out.println("Error al añadir el libro: " + e.getMessage());
+		        }
+
+		        
+		        
 				break;
 			case 2:
 				System.out.println("Eliminar libro...");
