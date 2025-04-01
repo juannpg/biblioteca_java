@@ -121,6 +121,8 @@ public class AccesoLibro {
 
 	// Consultar libros, por escritor, ordenados por puntuación descendente
 	public static ArrayList<Libro> consultarLibrosOrdenados(String escritor) throws BDException {
+		escritor = escritor.toLowerCase();
+		
 		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
 
 		PreparedStatement ps = null;
@@ -129,7 +131,7 @@ public class AccesoLibro {
 		try {
 			
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro where lower(escritor) like '%?%' order by puntuacion desc;";
+			String query = "select * from libro where lower(escritor) like ? order by puntuacion desc;";
 
 			ps = conexion.prepareStatement(query);
 			ps.setString(1, escritor);
@@ -240,8 +242,4 @@ public class AccesoLibro {
 			return listaLibros;
 
 		}
-	
-	
-	
-
 }
