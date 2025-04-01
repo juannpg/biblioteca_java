@@ -13,7 +13,9 @@ import models.Libro;
 
 public class AccesoLibro {
 
-	public static boolean añadirLibro(String isbn, String titulo, String escritor, int anio_publicacion,
+	
+	//Insertar Libro dentro de la base de datos
+	public static boolean anadirLibro(String isbn, String titulo, String escritor, int anyo_publicacion,
 			float puntuacion) throws BDException {
 
 		PreparedStatement ps = null;
@@ -24,14 +26,14 @@ public class AccesoLibro {
 		try {
 			// Conexi�n a la bd
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "insert into empleado (isbn, titulo, escritor, anio_publicacion, puntuacion ) VALUES (?, ?, ?, ?, ?);";
+			String query = "insert into empleado (isbn, titulo, escritor, anyo_publicacion, puntuacion ) VALUES (?, ?, ?, ?, ?);";
 
 			ps = conexion.prepareStatement(query);
-			// Al primer interrogante le asigno (ps1)
+
 			ps.setString(1, isbn);
 			ps.setString(2, titulo);
 			ps.setString(3, escritor);
-			ps.setInt(4, anio_publicacion);
+			ps.setInt(4, anyo_publicacion);
 			ps.setFloat(5, puntuacion);
 
 			filas = ps.executeUpdate();
@@ -49,6 +51,7 @@ public class AccesoLibro {
 
 	}
 
+	//Eliminar un Libro, por código, de la base de datos
 	public static boolean borrarLibroPorCodigo(int codigo) throws BDException {
 
 		PreparedStatement ps = null;
@@ -59,10 +62,10 @@ public class AccesoLibro {
 		try {
 			// Conexi�n a la bd
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "delete from empleado where codigo = ?;";
+			String query = "delete from libro where codigo = ?;";
 
 			ps = conexion.prepareStatement(query);
-			// Al primer interrogante le asigno  (ps1)
+			
 			ps.setInt(1, codigo);
 
 			filas = ps.executeUpdate();
@@ -80,6 +83,7 @@ public class AccesoLibro {
 
 	}
 
+	//Consultar todos los libros de la base de datos
 	public static ArrayList<Libro> consultarLibros() throws BDException {
 		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
 
@@ -100,10 +104,51 @@ public class AccesoLibro {
 				String isbn = resultados.getString("isbn");
 				String titulo = resultados.getString("titulo");
 				String escritor = resultados.getString("escritor");
-				int anio_publicacion = resultados.getInt("anio_publicacion");
+				int anio_publicacion = resultados.getInt("anyo_publicacion");
 				float puntuacion = resultados.getFloat("puntuacion");
 
 				Libro libro = new Libro(codigo, isbn, titulo, escritor, anio_publicacion, puntuacion);
+
+				listaLibros.add(libro);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return listaLibros;
+
+	}
+
+	//Consultar libros, por escritor, ordenados por puntuación descendente
+	public static ArrayList<Libro> consultarLibrosOrdenados(String escritor) throws BDException {
+		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
+
+		PreparedStatement ps = null;
+		Connection conexion = null;
+
+		try {
+			// Conexi�n a la bd
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from libro where lower(escritor) like '%?%' order by puntuacion desc;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setString(1, escritor);
+			
+			ResultSet resultados = ps.executeQuery();
+
+			while (resultados.next()) {
+				int codigo = resultados.getInt("codigo");
+				String isbn = resultados.getString("isbn");
+				String titulo = resultados.getString("titulo");
+				String escritor_libro = resultados.getString("escritor");
+				int anio_publicacion = resultados.getInt("anyo_publicacion");
+				float puntuacion = resultados.getFloat("puntuacion");
+
+				Libro libro = new Libro(codigo, isbn, titulo, escritor_libro, anio_publicacion, puntuacion);
 
 				listaLibros.add(libro);
 			}
@@ -119,44 +164,6 @@ public class AccesoLibro {
 
 	}
 	
-	public static ArrayList<Libro> consultarLibrosOrdenados() throws BDException {
-		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
-
-		PreparedStatement ps = null;
-		Connection conexion = null;
-
-		try {
-			// Conexi�n a la bd
-			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro order by puntuacion desc;";
-
-			ps = conexion.prepareStatement(query);
-
-			ResultSet resultados = ps.executeQuery();
-
-			while (resultados.next()) {
-				int codigo = resultados.getInt("codigo");
-				String isbn = resultados.getString("isbn");
-				String titulo = resultados.getString("titulo");
-				String escritor = resultados.getString("escritor");
-				int anio_publicacion = resultados.getInt("anio_publicacion");
-				float puntuacion = resultados.getFloat("puntuacion");
-
-				Libro libro = new Libro(codigo, isbn, titulo, escritor, anio_publicacion, puntuacion);
-
-				listaLibros.add(libro);
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-		} finally {
-			if (conexion != null) {
-				ConfigSQLite.cerrarConexion(conexion);
-			}
-		}
-		return listaLibros;
-
-	}
 	
 	
 

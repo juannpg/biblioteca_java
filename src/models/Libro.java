@@ -6,25 +6,25 @@ public class Libro {
 	private String isbn;
 	private String titulo;
 	private String escritor;
-	private int anio_publicacion;
+	private int anyo_publicacion;
 	private float puntuacion;
 	
 	
-	public Libro(int codigo, String isbn, String titulo, String escritor, int anio_publicacion, float puntuacion) {
+	public Libro(int codigo, String isbn, String titulo, String escritor, int anyo_publicacion, float puntuacion) {
 		super();
 		this.codigo = codigo;
 		this.isbn = isbn;
 		this.titulo = titulo;
 		this.escritor = escritor;
-		this.anio_publicacion = anio_publicacion;
+		this.anyo_publicacion = anyo_publicacion;
 		this.puntuacion = puntuacion;
 	}
 
 
 	@Override
 	public String toString() {
-		return "Libro [codigo=" + codigo + ", isbn=" + isbn + ", titulo=" + titulo + ", escritor=" + escritor
-				+ ", anio_publicacion=" + anio_publicacion + ", puntuacion=" + puntuacion + "]";
+		return "Libro [código=" + codigo + ", isbn=" + isbn + ", título=" + titulo + ", escritor=" + escritor
+				+ ", año publicación=" + anyo_publicacion + ", puntuación=" + puntuacion + "]";
 	}
 
 
@@ -68,13 +68,13 @@ public class Libro {
 	}
 
 
-	public int getAnio_publicacion() {
-		return anio_publicacion;
+	public int getAnyo_publicacion() {
+		return anyo_publicacion;
 	}
 
 
-	public void setAnio_publicacion(int anio_publicacion) {
-		this.anio_publicacion = anio_publicacion;
+	public void setAnyo_publicacion(int anyo_publicacion) {
+		this.anyo_publicacion = anyo_publicacion;
 	}
 
 
