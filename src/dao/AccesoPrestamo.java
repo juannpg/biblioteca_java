@@ -11,12 +11,10 @@ import exceptions.ExcepcionPrestamo;
 import models.Prestamo;
 
 public class AccesoPrestamo {
-	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
+	private static boolean estaLibroPrestado(int codigoLibro) throws BDException {
 		Connection conexion = null;
-		int filasAfectadas = 0;
 		
-        try {
-        	// comprobamos si el libro está prestado
+		try {
             conexion = ConfigSQLite.abrirConexion();
             String queryEstaPrestado = "select fecha_devolucion from prestamo where codigo_libro = ?";
             PreparedStatement psEstaPrestado = conexion.prepareStatement(queryEstaPrestado);
@@ -28,11 +26,27 @@ public class AccesoPrestamo {
             while (resultadoEstaPrestado.next()) {
             	fechaDevolucionEstaPrestado = resultadoEstaPrestado.getString("fecha_devolucion");
                 if (fechaDevolucionEstaPrestado == null) {
-                	throw new ExcepcionPrestamo(ExcepcionPrestamo.ESTA_PRESTADO);
+                	return true;
                 }
             }
-                       
-            // comprobamos si el socio tiene algún préstamo activo
+
+		} catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+		
+		return false;
+	}
+	
+	private static boolean tieneLibroPrestado(int codigoSocio) throws BDException {
+		Connection conexion = null;
+		
+		try {
+            conexion = ConfigSQLite.abrirConexion();
+
             String queryTienePrestamo = "select fecha_devolucion from prestamo where codigo_socio = ?";
             PreparedStatement psTienePrestamo = conexion.prepareStatement(queryTienePrestamo);
             
@@ -43,8 +57,37 @@ public class AccesoPrestamo {
             while (resultadoTienePrestamo.next()) {
             	fechaDevolucionTienePrestamo = resultadoTienePrestamo.getString("fecha_devolucion");
             	if (fechaDevolucionTienePrestamo == null) {
-            		throw new ExcepcionPrestamo(ExcepcionPrestamo.TIENE_PRESTADO);
+            		return true;
             	}
+
+            }
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return false;
+	}
+	
+	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
+		Connection conexion = null;
+		int filasAfectadas = 0;
+		
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+
+        	// comprobamos si el libro está prestado
+        	boolean estaPrestado = estaLibroPrestado(codigoLibro);
+        	if (estaPrestado) {
+        		throw new ExcepcionPrestamo(ExcepcionPrestamo.ESTA_PRESTADO);
+        	}
+          
+            // comprobamos si el socio tiene algún préstamo activo
+            boolean tieneLibroPrestado = tieneLibroPrestado(codigoSocio);
+            if (tieneLibroPrestado) {
+        		throw new ExcepcionPrestamo(ExcepcionPrestamo.TIENE_PRESTADO);
             }
             
             // lo demás
