@@ -38,7 +38,6 @@ public class AccesoLibro {
 			filas = ps.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
 			if (conexion != null) {
@@ -70,7 +69,6 @@ public class AccesoLibro {
 			filas = ps.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
 			if (conexion != null) {
@@ -111,7 +109,6 @@ public class AccesoLibro {
 				listaLibros.add(libro);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
 			if (conexion != null) {
@@ -152,7 +149,6 @@ public class AccesoLibro {
 				listaLibros.add(libro);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
 			if (conexion != null) {
