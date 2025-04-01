@@ -30,7 +30,7 @@ public class AccesoSocio {
 	                     + "VALUES ( ?, ?, ?, ?)";
 
 	        ps = conexion.prepareStatement(query);
-	        ps.setString(1,socio.getDni());
+	        ps.setString(1, socio.getDni());
 	        ps.setString(2, socio.getNombre());
 	        ps.setString(3, socio.getDomicilio());
 	        ps.setString(4, socio.getTelefono());
@@ -245,23 +245,46 @@ public class AccesoSocio {
 	    }
 	    return resultados == 1;
 	}
+	
+	public static ArrayList<Socio> consultarSociosPorLocalidadOrdenadosPorNombre(String localidad) throws BDException {
+		PreparedStatement ps = null;
+	    Connection conexion = null;
+	    ArrayList<Socio> socios = new ArrayList<>();
+ 
+	    try {
+	       conexion = ConfigSQLite.abrirConexion();
+	       String query = "SELECT * FROM socio "
+                    + "WHERE lower(domicilio) LIKE lower(?) "
+                    + "AND lower(domicilio) NOT LIKE lower(?) "
+                    + "AND lower(domicilio) NOT LIKE lower(?) "
+                    + "ORDER BY nombre";
+	       
+	       ps = conexion.prepareStatement(query);
+	
+	       ps.setString(1, "%" + localidad + "%");
+	       ps.setString(2, "c/ " + localidad + "%");
+	       ps.setString(3, "calle " + localidad + "%");
 
-	/*public static void main(String[] args) {
-		try {
-			S
-			ArrayList<Socio> arraySocios = consultarSociosNoPrestatario();
-			if (arraySocios.isEmpty()) {
-				System.out.println("La lista de socios esta vacia");
-			}else {
-				for (Socio socio : arraySocios) {
-					System.out.println(socio.toString());
-				}
-			}
-
-		} catch (BDException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
+	        ResultSet resultados = ps.executeQuery();
+	        
+	        while (resultados.next()) {
+	        	socios.add(new Socio(
+        			resultados.getInt("codigo"),
+	        		resultados.getString("dni"),
+	        		resultados.getString("nombre"),
+	        		resultados.getString("domicilio"),
+	        		resultados.getString("telefono"),
+	        		resultados.getString("correo")
+    			));
+	        }
+	    } catch (SQLException e) {
+	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+	    } finally {
+	        if (conexion != null) {
+	            ConfigSQLite.cerrarConexion(conexion);
+	        }
+	    }
+	    return socios;
+	}
 }
 
