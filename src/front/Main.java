@@ -61,9 +61,11 @@ public class Main {
 
 			do {
 				escribirMenuOpcionesLibro();
+				System.out.println();
 				opcion = Teclado.leerEntero("Opción: ");
 
 				switch (opcion) {
+
 				case 1:
 					System.out.println("Insertar libro...");
 					// Pedir datos al usuario
@@ -82,13 +84,14 @@ public class Main {
 					}
 
 					break;
+
 				case 2:
 					System.out.println("Eliminar libro...");
-					//pedir datos al usuario
+					// pedir datos al usuario
 					int codigo = Teclado.leerEntero("Introduce el código del libro: ");
-					
+
 					boolean borrarLibroPorCodigo = AccesoLibro.borrarLibroPorCodigo(codigo);
-					
+
 					if (borrarLibroPorCodigo) {
 						System.out.println("Libro eliminado correctamente.");
 
@@ -96,28 +99,55 @@ public class Main {
 						System.out.println("No se pudo eliminar el librp.");
 
 					}
-					
+
 					break;
+
 				case 3:
 					System.out.println("Consultar todos los libros...");
-					ArrayList<Libro> consultarLibros =AccesoLibro.consultarLibros();
-					
-					if(consultarLibros.isEmpty()) {
+					ArrayList<Libro> consultarLibros = AccesoLibro.consultarLibros();
+
+					if (consultarLibros.isEmpty()) {
 						System.out.println("No hay ningun libro en la coleccion");
 					} else {
 						System.out.println(consultarLibros);
 					}
-					
+
 					break;
+
 				case 4:
 					System.out.println("Consultar libros por escritor...");
+					String nombreEscritor = Teclado.leerCadena("Introduce el nombre del escritor: ");
+					ArrayList<Libro> consultarLibrosOrdenados = AccesoLibro.consultarLibrosOrdenados(nombreEscritor);
+					if (consultarLibrosOrdenados.isEmpty()) {
+						System.out.println("No se encontro ningún libro");
+					} else {
+						System.out.println(consultarLibrosOrdenados);
+					}
 					break;
+
 				case 5:
 					System.out.println("Consultar libros no prestados...");
+					ArrayList<Libro> consultarLibrosNoPrestados = AccesoLibro.consultarLibrosNoPrestados();
+
+					if (consultarLibrosNoPrestados.isEmpty()) {
+						System.out.println("No se encontro ningún libro");
+					} else {
+						System.out.println(consultarLibrosNoPrestados);
+					}
 					break;
+					
 				case 6:
 					System.out.println("Consultar libros devueltos en una fecha...");
+					String fechaDevolucion = Teclado.leerCadena("Introruce una fehca: ");
+					ArrayList<Libro> consultarLibrosDevueltos = AccesoLibro.consultarLibrosDevueltos(fechaDevolucion);
+					
+					if (consultarLibrosDevueltos.isEmpty()) {
+						System.out.println("No se encontro ningún libro");
+					} else {
+						System.out.println(consultarLibrosDevueltos);
+					}
 					break;
+					
 				case 0:
 					System.out.println("Regresando al menú principal...");
 					break;
@@ -211,7 +241,6 @@ public class Main {
 			System.out.println("3) Menú Préstamos");
 			System.out.println("0) Salir");
 
-			System.out.print("Opción: ");
 			opcion = Teclado.leerEntero("Opcion: ");
 
 			switch (opcion) {
