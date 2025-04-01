@@ -71,6 +71,18 @@ public class AccesoPrestamo {
 		return false;
 	}
 	
+	/**
+	 * Inserta un préstamo dados un codigo de libro, un codigo de socio, la fecha de inicio y la de fin.
+	 * @param codigoLibro
+	 * @param codigoSocio
+	 * @param fechaInicio
+	 * @param fechaFin
+	 * @return si se ha insertado o no.
+	 * @throws BDException Si la consulta sale mal
+	 * @throws ExcepcionPrestamo Si ese libro ya está prestado (imprimir el mensaje de la excepcion)
+	 * @throws ExcepcionPrestamo Si ese socio ya tiene un libro prestado (imprimir el mensaje de la excepcion)
+	 * @author juan pasamar
+	 */
 	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
 		Connection conexion = null;
 		int filasAfectadas = 0;
@@ -112,6 +124,17 @@ public class AccesoPrestamo {
         return filasAfectadas == 1;
 	}
 	
+	/**
+	 * actualiza la fecha de inicio y la de fin de un préstamo, utilizando su codigo de libro y de inicio como clave
+	 * @param codigoLibro
+	 * @param codigoSocio
+	 * @param fechaInicio
+	 * @param fechaFin
+	 * @return true si se ha actualizado (escribir en base al booleano)
+	 * @return false si no se ha actualizado (escribir en base al booleano)
+	 * @throws BDException
+	 * @author juan pasamar
+	 */
 	public static boolean actualizarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException {
 		Connection conexion = null;
 		int filasAfectadas = 0;
@@ -130,6 +153,41 @@ public class AccesoPrestamo {
             psInsert.setInt(4, codigoSocio);
             
             filasAfectadas = psInsert.executeUpdate();
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return filasAfectadas == 1;
+	}
+	
+	/**
+	 * elimina un préstamo de la base de datos en base a su codigo de libro y codigo de socio
+	 * @param codigoLibro
+	 * @param codigoSocio
+	 * @return true si se ha eliminado (escribir en base al booleano)
+	 * @return false si no se ha eliminado (escribir en base al booleano)
+	 * @throws BDException
+	 * @author juan pasamar
+	 */
+	public static boolean eliminarPrestamo(int codigoLibro, int codigoSocio) throws BDException {
+		Connection conexion = null;
+		int filasAfectadas = 0;
+		
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+            
+            String queryDelete = "delete from prestamo "
+            + "where codigo_libro = ? and codigo_socio = ?";
+            PreparedStatement psDelete = conexion.prepareStatement(queryDelete);
+            
+            psDelete.setInt(1,  codigoLibro);
+            psDelete.setInt(2, codigoSocio);
+            
+            filasAfectadas = psDelete.executeUpdate();
         } catch (SQLException e) {
             throw new BDException(BDException.ERROR_QUERY + e.getMessage());
         } finally {
