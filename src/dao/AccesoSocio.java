@@ -18,7 +18,13 @@ import exceptions.SocioException;
 import models.Socio;
 
 public class AccesoSocio {
-	//1.INSERTAR SOCIO
+	
+	/**
+	 * Metodo que permite agregar un Socio
+	 * @param socio
+	 * @return booleano indicando si se ha agregado o no se ha agregado
+	 * @throws BDException
+	 */
 	public static boolean agregarSocio(Socio socio) throws BDException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
@@ -46,7 +52,14 @@ public class AccesoSocio {
 	    }
 	    return resultados == 1;
 	}
-	//2. ELIMINAR SOCIO POR CODIGO
+	
+	/**
+	 * Metodo que elimina un socio
+	 * @param codigoSocio
+	 * @return booleano indicando si se ha eliminado o no se ha eliminado
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	public static boolean eliminarSocio(int codigoSocio) throws BDException, SocioException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
@@ -76,7 +89,13 @@ public class AccesoSocio {
 	    }
 	    return resultados == 1;
 	}
-	//3. CONSULTAR TODOS LOS SOCIOS
+	
+	/**
+	 * Metodo que consulta todos los Socios de la BD
+	 * @return ArrayList de Socios 
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	public static ArrayList<Socio> consultarTodosSocios() throws BDException, SocioException{
 		ArrayList<Socio> todosSocios = new ArrayList<Socio>();
 	    PreparedStatement ps = null;
@@ -113,45 +132,13 @@ public class AccesoSocio {
 	    }
 	    return todosSocios;
 	}
-	//4. CONSULTAR SOCIO POR LOCALIDAD(parametro) ORDENADOS POR NOMBRE ASC
-	public static ArrayList<Socio> consultarSociosLocalidad(String localidad) throws BDException, SocioException{
-		ArrayList<Socio> todosSociosLocalidad = new ArrayList<Socio>();
-	    PreparedStatement ps = null;
-	    Connection conexion = null;
-	    try {
-	    	conexion = ConfigSQLite.abrirConexion();
-	    	 String queryString = "SELECT * FROM socio WHERE domicilio = ? ORDER BY nombre ASC";
-	    	 ps = conexion.prepareStatement(queryString);
-		     ps.setString(1, localidad);
 
-	    	 ResultSet resultados = ps.executeQuery();
-	    	 
-	    	 while (resultados.next()) {
-	    		 int codigoSocio = resultados.getInt("codigo");
-	    		 String dniSocio = resultados.getString("dni");
-	    		 String nombreSocio = resultados.getString("nombre");
-	    		 String domicilioSocio = resultados.getString("domicilio");
-	    		 String telefonoSocio = resultados.getString("telefono");
-	    		 String correoSocio = resultados.getString("correo");
-
-	    		 Socio socio = new Socio(codigoSocio, dniSocio, nombreSocio, domicilioSocio, telefonoSocio, correoSocio);
-	    		 todosSociosLocalidad.add(socio);
-
-	    	 }
-	    	 if (todosSociosLocalidad.isEmpty()) {
-	    		 throw new SocioException(SocioException.ERROR_SOCIO_LOCALIDAD);
-	    	 }
-	    }catch (SQLException e) {
-	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-	    } finally {
-	        if (conexion != null) {
-	            ConfigSQLite.cerrarConexion(conexion);
-	        }
-	    }
-	    return todosSociosLocalidad;
-	}
-	//5. CONSULTAR SOCIOS SIN PRESTAMOS
-	//dar una vuelta
+	/**
+	 * Metodo para consultar los Socios que no han hecho prestamo
+	 * @return ArrayList de los Socios correspondientes
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	public static ArrayList<Socio> consultarSociosNoPrestatario() throws BDException, SocioException{
 		ArrayList<Socio> todosSociosNP = new ArrayList<Socio>();
 	    PreparedStatement ps = null;
@@ -187,7 +174,14 @@ public class AccesoSocio {
 	    }
 	    return todosSociosNP;
 	}
-	//6. CONSULTAR SOCIOS CON PRESTAMOS en una fecha
+
+	/**
+	 * Metodo que consulta los socios con prestamos segun una fecha
+	 * @param fecha
+	 * @return Arraylist de Socios correspondientes
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	public static ArrayList<Socio> consultarSociosPrestatario(String fecha) throws BDException, SocioException{
 		ArrayList<Socio> todosSocioSP = new ArrayList<Socio>();
 	    PreparedStatement ps = null;
@@ -223,6 +217,13 @@ public class AccesoSocio {
 	    }
 	    return todosSocioSP;
 	}
+	/**
+	 * Metodo creado para una excepcion, indica si un socio es prestatario
+	 * @param codigoSocio
+	 * @return
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	private static boolean esPrestatario(int codigoSocio) throws BDException, SocioException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
@@ -245,7 +246,14 @@ public class AccesoSocio {
 	    }
 	    return resultados == 1;
 	}
-	
+
+	/**
+	 * Metodo que consulta Socios de la BD segun una localidad
+	 * @param localidad
+	 * @return ArrayList de los Socios correspondientes
+	 * @throws BDException
+	 * @throws SocioException
+	 */
 	public static ArrayList<Socio> consultarSociosPorLocalidadOrdenadosPorNombre(String localidad) throws BDException {
 		PreparedStatement ps = null;
 	    Connection conexion = null;
