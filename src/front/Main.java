@@ -8,6 +8,9 @@ import dao.AccesoSocio;
 
 import entrada.Teclado;
 import exceptions.BDException;
+import exceptions.ExcepcionPrestamo;
+import exceptions.SocioException;
+
 import models.Libro;
 import models.Socio;
 
@@ -218,6 +221,9 @@ public class Main {
 				}
 			} catch (BDException e) {
 				System.out.println("Error al ejecutar opcion del Menu Socios: " + e.getMessage());
+			} catch (SocioException e) {
+				System.out.println("Error con socio: " + e.getMessage());
+
 			}
 		} while (opcion != 0);
 	}
@@ -225,10 +231,10 @@ public class Main {
 	public static void menuPrestamos() {
 		int opcion = -1;
 		do {
-				try {
+			try {
 				escribirMenuOpcionesPrestamo();
 				opcion = Teclado.leerEntero("Opción: ");
-	
+
 				switch (opcion) {
 				case 1:
 					System.out.println("Insertar préstamo...");
@@ -254,9 +260,12 @@ public class Main {
 				default:
 					System.out.println("Opción no válida. Intente de nuevo.");
 				}
+			} catch (ExcepcionPrestamo e) {
+				System.out.println("Error con prestamo: " + e.getMessage());
 			} catch (BDException e) {
 				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
 			}
+
 		} while (opcion != 0);
 	}
 
