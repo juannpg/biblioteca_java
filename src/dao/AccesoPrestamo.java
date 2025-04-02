@@ -198,5 +198,30 @@ public class AccesoPrestamo {
         
         return filasAfectadas == 1;
 	}
+	
+	public static ArrayList<Prestamo> consultarTodosPrestamos() {
+		Connection conexion = null;
+		int filasAfectadas = 0;
+		
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+            
+            String query = "select * from prestamo";
+            PreparedStatement ps = conexion.prepareStatement(query);
+            
+            pse.setInt(1,  codigoLibro);
+            ps.setInt(2, codigoSocio);
+            
+            filasAfectadas = psDelete.executeUpdate();
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return filasAfectadas == 1;
+	}
 }
 
