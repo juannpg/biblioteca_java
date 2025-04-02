@@ -238,5 +238,44 @@ public class AccesoPrestamo {
         
         return prestamos;
 	}
+	
+	/**
+	 * consulta todos los prestamos que aún no han sido devueltos. 
+	 * @return arraylist con los prestamos
+	 * @throws BDException
+	 */
+	public static ArrayList<Prestamo> consultarLosPrestamosNoDevueltos() throws BDException {
+		ArrayList<Prestamo> prestamos = new ArrayList<>();
+		
+		Connection conexion = null;
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+            
+            String query = "select * from prestamo where fecha_devolucion is null";
+            PreparedStatement ps = conexion.prepareStatement(query);
+            
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	prestamos.add(new Prestamo(
+            		AccesoLibro.consultarLibroPorCodigo(resultados.getInt("codigo_libro")),
+            		AccesoSocio.consultarSocioPorCodigo(resultados.getInt("codigo_socio")),
+            		resultados.getString("fecha_inicio"),
+            		resultados.getString("fecha_fin"),
+            		resultados.getString("fecha_devolucion")
+    			));
+            }
+            
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return prestamos;
+	}
 }
 
