@@ -200,7 +200,12 @@ public class AccesoPrestamo {
         return filasAfectadas == 1;
 	}
 	
-	public static ArrayList<Prestamo> consultarTodosPrestamos() {
+	/**
+	 * consulta todos los prestamos de la base de datos. Si devuelve null es que está vacía
+	 * @return ArrayList con todos los prestamos
+	 * @throws BDException
+	 */
+	public static ArrayList<Prestamo> consultarTodosPrestamos() throws BDException {
 		ArrayList<Prestamo> prestamos = new ArrayList<>();
 		
 		Connection conexion = null;
@@ -216,7 +221,7 @@ public class AccesoPrestamo {
             while (resultados.next()) {
             	prestamos.add(new Prestamo(
             		AccesoLibro.consultarLibroPorCodigo(resultados.getInt("codigo_libro")),
-            		resultados.getInt("codigo_socio"),
+            		AccesoSocio.consultarSocioPorCodigo(resultados.getInt("codigo_socio")),
             		resultados.getString("fecha_inicio"),
             		resultados.getString("fecha_fin"),
             		resultados.getString("fecha_devolucion")
@@ -231,7 +236,7 @@ public class AccesoPrestamo {
             }
         }
         
-        return filasAfectadas == 1;
+        return prestamos;
 	}
 }
 
