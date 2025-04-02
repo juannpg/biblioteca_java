@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import config.ConfigSQLite;
 import exceptions.BDException;
@@ -200,19 +201,28 @@ public class AccesoPrestamo {
 	}
 	
 	public static ArrayList<Prestamo> consultarTodosPrestamos() {
-		Connection conexion = null;
-		int filasAfectadas = 0;
+		ArrayList<Prestamo> prestamos = new ArrayList<>();
 		
+		Connection conexion = null;
         try {
             conexion = ConfigSQLite.abrirConexion();
             
             String query = "select * from prestamo";
             PreparedStatement ps = conexion.prepareStatement(query);
             
-            pse.setInt(1,  codigoLibro);
-            ps.setInt(2, codigoSocio);
             
-            filasAfectadas = psDelete.executeUpdate();
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	prestamos.add(new Prestamo(
+            		AccesoLibro.consultarLibroPorCodigo(resultados.getInt("codigo_libro")),
+            		resultados.getInt("codigo_socio"),
+            		resultados.getString("fecha_inicio"),
+            		resultados.getString("fecha_fin"),
+            		resultados.getString("fecha_devolucion")
+    			));
+            }
+            
         } catch (SQLException e) {
             throw new BDException(BDException.ERROR_QUERY + e.getMessage());
         } finally {
