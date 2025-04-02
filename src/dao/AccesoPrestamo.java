@@ -10,8 +10,15 @@ import config.ConfigSQLite;
 import exceptions.BDException;
 import exceptions.ExcepcionPrestamo;
 import models.Prestamo;
+import models.PrestamoExtendido;
 
 public class AccesoPrestamo {
+	/**
+	 * metodo abstraido de insertarPrestamo para simplificar el código. no incluir en el main
+	 * @param codigoLibro
+	 * @return booleano indicando si el libro está prestado
+	 * @throws BDException
+	 */
 	private static boolean estaLibroPrestado(int codigoLibro) throws BDException {
 		Connection conexion = null;
 		
@@ -42,6 +49,12 @@ public class AccesoPrestamo {
 		return false;
 	}
 	
+	/**
+	 * metodo abstraido de insertarPrestamo para simplificar el código. no incluir en el main
+	 * @param codigoLibro
+	 * @return booleano indicando si el socio tiene un libro prestado
+	 * @throws BDException
+	 */
 	private static boolean tieneLibroPrestado(int codigoSocio) throws BDException {
 		Connection conexion = null;
 		
@@ -82,7 +95,6 @@ public class AccesoPrestamo {
 	 * @throws BDException Si la consulta sale mal
 	 * @throws ExcepcionPrestamo Si ese libro ya está prestado (imprimir el mensaje de la excepcion)
 	 * @throws ExcepcionPrestamo Si ese socio ya tiene un libro prestado (imprimir el mensaje de la excepcion)
-	 * @author juan pasamar
 	 */
 	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
 		Connection conexion = null;
@@ -134,7 +146,6 @@ public class AccesoPrestamo {
 	 * @return true si se ha actualizado (escribir en base al booleano)
 	 * @return false si no se ha actualizado (escribir en base al booleano)
 	 * @throws BDException
-	 * @author juan pasamar
 	 */
 	public static boolean actualizarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException {
 		Connection conexion = null;
@@ -172,7 +183,6 @@ public class AccesoPrestamo {
 	 * @return true si se ha eliminado (escribir en base al booleano)
 	 * @return false si no se ha eliminado (escribir en base al booleano)
 	 * @throws BDException
-	 * @author juan pasamar
 	 */
 	public static boolean eliminarPrestamo(int codigoLibro, int codigoSocio) throws BDException {
 		Connection conexion = null;
@@ -215,7 +225,6 @@ public class AccesoPrestamo {
             String query = "select * from prestamo";
             PreparedStatement ps = conexion.prepareStatement(query);
             
-            
             ResultSet resultados = ps.executeQuery();
             
             while (resultados.next()) {
@@ -254,7 +263,6 @@ public class AccesoPrestamo {
             String query = "select * from prestamo where fecha_devolucion is null";
             PreparedStatement ps = conexion.prepareStatement(query);
             
-            
             ResultSet resultados = ps.executeQuery();
             
             while (resultados.next()) {
@@ -264,6 +272,51 @@ public class AccesoPrestamo {
             		resultados.getString("fecha_inicio"),
             		resultados.getString("fecha_fin"),
             		resultados.getString("fecha_devolucion")
+    			));
+            }
+            
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return prestamos;
+	}
+	
+	/**
+	 * consulta todos los prestamos cuya fecha de inicio sea la dada. Utiliza el modelo PrestamoExtendido
+	 * para mostrar los datos requeridos
+	 * @param fechaInicio
+	 * @return ArrayList de prestamoExtendido
+	 * @throws BDException
+	 */
+	public static ArrayList<PrestamoExtendido> consultarPrestamosExtendidosConFechaDevolucion(String fechaInicio) throws BDException {
+		ArrayList<PrestamoExtendido> prestamos = new ArrayList<>();
+		
+		Connection conexion = null;
+        try {
+            conexion = ConfigSQLite.abrirConexion();
+            
+            String query = "select s.dni, s.nombre, l.isbn, l.titulo, p.fecha_devolucion from prestamo p "
+            + "join socio s on p.codigo_socio = s.codigo "
+            + "join libro l on p.codigo_libro = l.codigo "
+            + "where p.fecha_inicio = ?";
+            PreparedStatement ps = conexion.prepareStatement(query);
+            
+            ps.setString(1, fechaInicio);
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	prestamos.add(new PrestamoExtendido(
+        			resultados.getString("dni"),
+        			resultados.getString("nombre"),
+        			resultados.getString("isbn"),
+        			resultados.getString("titulo"),
+        			resultados.getString("fecha_devolucion")
     			));
             }
             
