@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class ConfigSQLite {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final String URLBD = "jdbc:sqlite:db/biblioteca.db";
+    private static final String URLBD = "jdbc:sqlite:bd/biblioteca.db";
 
     public static Connection abrirConexion() throws BDException {
         Connection conexion = null;
