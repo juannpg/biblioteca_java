@@ -10,6 +10,7 @@ import config.ConfigSQLite;
 
 import exceptions.BDException;
 import models.Libro;
+import models.Prestamo;
 
 public class AccesoLibro {
 
@@ -121,6 +122,8 @@ public class AccesoLibro {
 
 	// Consultar libros, por escritor, ordenados por puntuación descendente
 	public static ArrayList<Libro> consultarLibrosOrdenados(String escritor) throws BDException {
+		escritor = escritor.toLowerCase();
+		
 		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
 
 		PreparedStatement ps = null;
@@ -129,7 +132,7 @@ public class AccesoLibro {
 		try {
 			
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro where lower(escritor) like '%?%' order by puntuacion desc;";
+			String query = "select * from libro where lower(escritor) like ? order by puntuacion desc;";
 
 			ps = conexion.prepareStatement(query);
 			ps.setString(1, escritor);
@@ -240,8 +243,45 @@ public class AccesoLibro {
 			return listaLibros;
 
 		}
-	
-	
-	
-
+		
+		/**
+		 * metodo hecho por juan para un metodo de acceso prestamo. no es necesario en el main
+		 * @param codigoLibro
+		 * @return
+		 * @throws BDException
+		 */
+		public static Libro consultarLibroPorCodigo(int codigoLibro) throws BDException {
+			Libro libro = null;
+			
+			Connection conexion = null;
+	        try {
+	            conexion = ConfigSQLite.abrirConexion();
+	            
+	            String query = "select * from libro where codigo = ?";
+	            PreparedStatement ps = conexion.prepareStatement(query);
+	            ps.setInt(1, codigoLibro);
+	            
+	            ResultSet resultados = ps.executeQuery();
+	            
+	            if (resultados.next()) {
+	            	libro = new Libro(
+	            		codigoLibro,
+	            		resultados.getString("isbn"),
+	            		resultados.getString("titulo"),
+	            		resultados.getString("escritor"),
+	            		resultados.getInt("anyo_publicacion"),
+	            		resultados.getFloat("puntuacion")
+        			);
+	            }
+	            
+	        } catch (SQLException e) {
+	            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+	        } finally {
+	            if (conexion != null) {
+	                ConfigSQLite.cerrarConexion(conexion);
+	            }
+	        }
+	        
+	        return libro;
+		}
 }
