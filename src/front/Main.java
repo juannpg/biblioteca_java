@@ -181,10 +181,11 @@ public class Main {
 //					String domicilio = Teclado.leerCadena("Introducir el domicilio");
 //					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
 //					String correo = Teclado.leerCadena("Introduce el correo");
-//					
+//
 //					Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
 //					boolean añadirSocio = AccesoSocio.añadirSocio(socio);
 					break;
+
 				case 2:
 					System.out.println("Eliminar socio...");
 					// pedir datos al usuario
@@ -201,17 +202,49 @@ public class Main {
 					}
 
 					break;
+
 				case 3:
 					System.out.println("Consultar todos los socios...");
+					ArrayList<Socio> consultarTodosSocios = AccesoSocio.consultarTodosSocios();
+
+					if (consultarTodosSocios.isEmpty()) {
+						System.out.println("No hay ningun socio");
+					} else {
+						System.out.println(consultarTodosSocios);
+					}
 					break;
+
 				case 4:
 					System.out.println("Consultar socios por localidad...");
+					String localidad = Teclado.leerCadena("Introduce una localidad");
+					ArrayList<Socio> consultarSociosLocalidad = AccesoSocio.consultarSociosLocalidad(localidad);
+					
+					if (consultarSociosLocalidad.isEmpty()) {
+						System.out.println();
+					}
 					break;
+					
 				case 5:
 					System.out.println("Consultar socios sin préstamos...");
+					ArrayList<Socio> consultarSociosNoPrestatario = AccesoSocio.consultarSociosNoPrestatario();
+					
+					if (consultarSociosNoPrestatario.isEmpty()) {
+						System.out.println("No se encontro ningun socio");
+					} else {
+						System.out.println(consultarSociosNoPrestatario);;
+					}
 					break;
+					
 				case 6:
 					System.out.println("Consultar socios con préstamos en una fecha...");
+					String fecha = Teclado.leerCadena("Introduce una fecha");
+					ArrayList<Socio> consultarSociosPrestatario = AccesoSocio.consultarSociosPrestatario(fecha);
+					
+					if (consultarSociosPrestatario.isEmpty()) {
+						System.out.println("No se encontro ningun socio");
+					} else {
+						System.out.println(consultarSociosPrestatario);
+					}
 					break;
 				case 0:
 					System.out.println("Regresando al menú principal...");
@@ -231,41 +264,40 @@ public class Main {
 	public static void menuPrestamos() {
 		int opcion = -1;
 		do {
-			try {
-				escribirMenuOpcionesPrestamo();
-				opcion = Teclado.leerEntero("Opción: ");
-
-				switch (opcion) {
-				case 1:
-					System.out.println("Insertar préstamo...");
-					break;
-				case 2:
-					System.out.println("Actualizar préstamo...");
-					break;
-				case 3:
-					System.out.println("Eliminar préstamo...");
-					break;
-				case 4:
-					System.out.println("Consultar todos los préstamos...");
-					break;
-				case 5:
-					System.out.println("Consultar préstamos no devueltos...");
-					break;
-				case 6:
-					System.out.println("Consultar préstamos realizados en una fecha...");
-					break;
-				case 0:
-					System.out.println("Regresando al menú principal...");
-					break;
-				default:
-					System.out.println("Opción no válida. Intente de nuevo.");
-				}
-			} catch (ExcepcionPrestamo e) {
-				System.out.println("Error con prestamo: " + e.getMessage());
-			} catch (BDException e) {
-				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
-			}
-
+//			try {
+//				escribirMenuOpcionesPrestamo();
+//				opcion = Teclado.leerEntero("Opción: ");
+//
+//				switch (opcion) {
+//				case 1:
+//					System.out.println("Insertar préstamo...");
+//					break;
+//				case 2:
+//					System.out.println("Actualizar préstamo...");
+//					break;
+//				case 3:
+//					System.out.println("Eliminar préstamo...");
+//					break;
+//				case 4:
+//					System.out.println("Consultar todos los préstamos...");
+//					break;
+//				case 5:
+//					System.out.println("Consultar préstamos no devueltos...");
+//					break;
+//				case 6:
+//					System.out.println("Consultar préstamos realizados en una fecha...");
+//					break;
+//				case 0:
+//					System.out.println("Regresando al menú principal...");
+//					break;
+//				default:
+//					System.out.println("Opción no válida. Intente de nuevo.");
+//				}
+//			} catch (BDException e) {
+//				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+//			} catch (ExcepcionPrestamo e) {
+//				System.out.println("Error con prestamo: " + e.getMessage());
+//			} 
 		} while (opcion != 0);
 	}
 
