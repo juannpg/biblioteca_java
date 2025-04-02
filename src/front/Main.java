@@ -9,6 +9,7 @@ import dao.AccesoSocio;
 import entrada.Teclado;
 import exceptions.BDException;
 import models.Libro;
+import models.Socio;
 
 public class Main {
 
@@ -56,14 +57,13 @@ public class Main {
 	}
 
 	public static void menuLibros() {
-		int opcion;
-		try {
+		int opcion = -1;
 
-			do {
+		do {
+			try {
 				escribirMenuOpcionesLibro();
 				System.out.println();
 				opcion = Teclado.leerEntero("Opción: ");
-
 				switch (opcion) {
 
 				case 1:
@@ -96,7 +96,7 @@ public class Main {
 						System.out.println("Libro eliminado correctamente.");
 
 					} else {
-						System.out.println("No se pudo eliminar el librp.");
+						System.out.println("No se pudo eliminar el libro.");
 
 					}
 
@@ -135,96 +135,127 @@ public class Main {
 						System.out.println(consultarLibrosNoPrestados);
 					}
 					break;
-					
+
 				case 6:
 					System.out.println("Consultar libros devueltos en una fecha...");
 					String fechaDevolucion = Teclado.leerCadena("Introruce una fehca: ");
 					ArrayList<Libro> consultarLibrosDevueltos = AccesoLibro.consultarLibrosDevueltos(fechaDevolucion);
-					
+
 					if (consultarLibrosDevueltos.isEmpty()) {
 						System.out.println("No se encontro ningún libro");
 					} else {
 						System.out.println(consultarLibrosDevueltos);
 					}
 					break;
-					
+
 				case 0:
 					System.out.println("Regresando al menú principal...");
 					break;
 				default:
 					System.out.println("Opción no válida. Intente de nuevo.");
 				}
-			} while (opcion != 0);
-		} catch (BDException e) {
-			System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
 
-		}
+			} catch (BDException e) {
+				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+			}
+
+		} while (opcion != 0);
+
 	}
 
 	public static void menuSocios() {
-		int opcion;
+		int opcion = -1;
 		do {
-			escribirMenuOpcionesSocio();
-			opcion = Teclado.leerEntero("Opción: ");
+			try {
+				escribirMenuOpcionesSocio();
+				opcion = Teclado.leerEntero("Opción: ");
 
-			switch (opcion) {
-			case 1:
-				System.out.println("Insertar socio...");
-				break;
-			case 2:
-				System.out.println("Eliminar socio...");
-				break;
-			case 3:
-				System.out.println("Consultar todos los socios...");
-				break;
-			case 4:
-				System.out.println("Consultar socios por localidad...");
-				break;
-			case 5:
-				System.out.println("Consultar socios sin préstamos...");
-				break;
-			case 6:
-				System.out.println("Consultar socios con préstamos en una fecha...");
-				break;
-			case 0:
-				System.out.println("Regresando al menú principal...");
-				break;
-			default:
-				System.out.println("Opción no válida. Intente de nuevo.");
+				switch (opcion) {
+				case 1:
+					System.out.println("Insertar socio...");
+//					String dni = Teclado.leerCadena("Introduce el DNI");
+//					String nombre = Teclado.leerCadena("Introduce el nombre");
+//					String domicilio = Teclado.leerCadena("Introducir el domicilio");
+//					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
+//					String correo = Teclado.leerCadena("Introduce el correo");
+//					
+//					Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
+//					boolean añadirSocio = AccesoSocio.añadirSocio(socio);
+					break;
+				case 2:
+					System.out.println("Eliminar socio...");
+					// pedir datos al usuario
+					int codigoSocio = Teclado.leerEntero("Introduce el código del Socio: ");
+
+					boolean eliminarSocio = AccesoSocio.eliminarSocio(codigoSocio);
+
+					if (eliminarSocio) {
+						System.out.println("Socio eliminado correctamente.");
+
+					} else {
+						System.out.println("No se pudo eliminar el Socio.");
+
+					}
+
+					break;
+				case 3:
+					System.out.println("Consultar todos los socios...");
+					break;
+				case 4:
+					System.out.println("Consultar socios por localidad...");
+					break;
+				case 5:
+					System.out.println("Consultar socios sin préstamos...");
+					break;
+				case 6:
+					System.out.println("Consultar socios con préstamos en una fecha...");
+					break;
+				case 0:
+					System.out.println("Regresando al menú principal...");
+					break;
+				default:
+					System.out.println("Opción no válida. Intente de nuevo.");
+				}
+			} catch (BDException e) {
+				System.out.println("Error al ejecutar opcion del Menu Socios: " + e.getMessage());
 			}
 		} while (opcion != 0);
 	}
 
 	public static void menuPrestamos() {
-		int opcion;
+		int opcion = -1;
 		do {
-			escribirMenuOpcionesPrestamo();
-			opcion = Teclado.leerEntero("Opción: ");
-
-			switch (opcion) {
-			case 1:
-				System.out.println("Insertar préstamo...");
-				break;
-			case 2:
-				System.out.println("Actualizar préstamo...");
-				break;
-			case 3:
-				System.out.println("Eliminar préstamo...");
-				break;
-			case 4:
-				System.out.println("Consultar todos los préstamos...");
-				break;
-			case 5:
-				System.out.println("Consultar préstamos no devueltos...");
-				break;
-			case 6:
-				System.out.println("Consultar préstamos realizados en una fecha...");
-				break;
-			case 0:
-				System.out.println("Regresando al menú principal...");
-				break;
-			default:
-				System.out.println("Opción no válida. Intente de nuevo.");
+				try {
+				escribirMenuOpcionesPrestamo();
+				opcion = Teclado.leerEntero("Opción: ");
+	
+				switch (opcion) {
+				case 1:
+					System.out.println("Insertar préstamo...");
+					break;
+				case 2:
+					System.out.println("Actualizar préstamo...");
+					break;
+				case 3:
+					System.out.println("Eliminar préstamo...");
+					break;
+				case 4:
+					System.out.println("Consultar todos los préstamos...");
+					break;
+				case 5:
+					System.out.println("Consultar préstamos no devueltos...");
+					break;
+				case 6:
+					System.out.println("Consultar préstamos realizados en una fecha...");
+					break;
+				case 0:
+					System.out.println("Regresando al menú principal...");
+					break;
+				default:
+					System.out.println("Opción no válida. Intente de nuevo.");
+				}
+			} catch (BDException e) {
+				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
 			}
 		} while (opcion != 0);
 	}
