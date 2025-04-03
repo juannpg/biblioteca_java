@@ -9,6 +9,7 @@ import dao.AccesoSocio;
 import entrada.Teclado;
 import exceptions.BDException;
 import exceptions.ExcepcionPrestamo;
+import exceptions.LibroException;
 import exceptions.SocioException;
 
 import models.Libro;
@@ -170,6 +171,9 @@ public class Main {
 
 			} catch (BDException e) {
 				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+			} catch (LibroException e) {
+				System.out.println("Error de Libro: " + e.getMessage());
+
 			}
 
 		} while (opcion != 0);
