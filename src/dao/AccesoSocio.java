@@ -256,15 +256,13 @@ public class AccesoSocio {
 	       conexion = ConfigSQLite.abrirConexion();
 	       String query = "SELECT * FROM socio "
                     + "WHERE lower(domicilio) LIKE lower(?) "
-                    + "AND lower(domicilio) NOT LIKE lower(?) "
-                    + "AND lower(domicilio) NOT LIKE lower(?) "
+                    + "AND lower(domicilio) LIKE lower(?) "
                     + "ORDER BY nombre";
 	       
 	       ps = conexion.prepareStatement(query);
 	
-	       ps.setString(1, "%" + localidad + "%");
-	       ps.setString(2, "c/ " + localidad + "%");
-	       ps.setString(3, "calle " + localidad + "%");
+	       ps.setString(1, "%," + localidad + "%");
+        ps.setString(2, "%, " + localidad + "%");
 
 	        ResultSet resultados = ps.executeQuery();
 	        
