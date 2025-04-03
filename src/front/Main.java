@@ -116,7 +116,10 @@ public class Main {
 					if (consultarLibros.isEmpty()) {
 						System.out.println("No hay ningun libro en la coleccion");
 					} else {
-						System.out.println(consultarLibros);
+						System.out.println("Lista de libros");
+						for (Libro libro : consultarLibros) {
+							System.out.println("- " + libro);
+						}
 					}
 
 					break;
@@ -131,7 +134,10 @@ public class Main {
 					if (consultarLibrosOrdenados.isEmpty()) {
 						System.out.println("No se encontro ningún libro");
 					} else {
-						System.out.println(consultarLibrosOrdenados);
+						System.out.println("Lista de libros: ");
+						for (Libro libro : consultarLibrosOrdenados) {
+							System.out.println("- " + libro);
+						}
 					}
 					break;
 
@@ -143,8 +149,10 @@ public class Main {
 					if (consultarLibrosNoPrestados.isEmpty()) {
 						System.out.println("No se encontro ningún libro");
 					} else {
-						System.out.println(consultarLibrosNoPrestados);
-					}
+						System.out.println("Lista de libros no prestados: ");
+						for (Libro libro : consultarLibrosNoPrestados) {
+							System.out.println("- " + libro);
+						}					}
 					break;
 
 				case 6:
@@ -157,7 +165,10 @@ public class Main {
 					if (consultarLibrosDevueltos.isEmpty()) {
 						System.out.println("No se encontro ningún libro");
 					} else {
-						System.out.println(consultarLibrosDevueltos);
+						System.out.println("Lista de libros devueltos en la fehca: " + fechaDevolucion);
+						for (Libro libro : consultarLibrosDevueltos) {
+							System.out.println("- " + libro);
+						}					
 					}
 					break;
 
@@ -170,9 +181,9 @@ public class Main {
 				}
 
 			} catch (BDException e) {
-				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+				System.out.println("Error en la consulta, mensaje de error: " + e.getMessage());
 			} catch (LibroException e) {
-				System.out.println("Error de Libro: " + e.getMessage());
+				System.out.println(e.getMessage());
 
 			}
 
@@ -198,7 +209,13 @@ public class Main {
 //					String correo = Teclado.leerCadena("Introduce el correo");
 //
 //					Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
-//					boolean añadirSocio = AccesoSocio.añadirSocio(socio);
+//					boolean agregarSocio = AccesoSocio.agregarSocio(socio);
+//					
+//					if (!agregarSocio) {
+//						System.out.println("No se pudo agegar un nuevo socio");
+//					} else {
+//						System.out.println("Socio agregado con exito");
+//					}
 					break;
 
 				case 2:
@@ -226,8 +243,12 @@ public class Main {
 					if (consultarTodosSocios.isEmpty()) {
 						System.out.println("No hay ningun socio");
 					} else {
-						System.out.println(consultarTodosSocios);
+						System.out.println("Lista de socios encontrados: ");
+						for (Socio socio : consultarTodosSocios) {
+							System.out.println("- " + socio);
+						}					
 					}
+					
 					break;
 
 				case 4:
@@ -235,11 +256,17 @@ public class Main {
 					// pedir datos al usuario
 					String localidad = Teclado.leerCadena("Introduce una localidad");
 
-					ArrayList<Socio> consultarSociosLocalidad = AccesoSocio.consultarSociosLocalidad(localidad);
+					ArrayList<Socio> consultarSociosPorLocalidadOrdenadosPorNombre = AccesoSocio.consultarSociosPorLocalidadOrdenadosPorNombre(localidad);
 
-					if (consultarSociosLocalidad.isEmpty()) {
-						System.out.println();
+					if (consultarSociosPorLocalidadOrdenadosPorNombre.isEmpty()) {
+						System.out.println("No se encontro nigun Socio en esta localidad");
+					} else {
+						System.out.println("Lista de socios encontrados en la localidad: " + localidad);
+						for (Socio socio : consultarSociosPorLocalidadOrdenadosPorNombre) {
+							System.out.println("- " + socio);
+						}					
 					}
+					
 					break;
 
 				case 5:
@@ -250,23 +277,33 @@ public class Main {
 					if (consultarSociosNoPrestatario.isEmpty()) {
 						System.out.println("No se encontro ningun socio");
 					} else {
-						System.out.println(consultarSociosNoPrestatario);
-						;
+						System.out.println("Lista de socios sin préstamos: ");
+						
+						for (Socio socio : consultarSociosNoPrestatario) {
+							System.out.println("- " + socio);
+						}
+						
 					}
+					
 					break;
 
 				case 6:
 					System.out.println("Consultar socios con préstamos en una fecha...");
 					// pedir datos al usuario
-					String fecha = Teclado.leerCadena("Introduce una fecha");
+					String fecha = Teclado.leerCadena("Introduce una fecha (yyyy-mm-dd)");
 
 					ArrayList<Socio> consultarSociosPrestatario = AccesoSocio.consultarSociosPrestatario(fecha);
 
 					if (consultarSociosPrestatario.isEmpty()) {
 						System.out.println("No se encontro ningun socio");
 					} else {
-						System.out.println(consultarSociosPrestatario);
+						System.out.println("Lista de socios encontrados en la fecha: " + fecha);
+						
+						for (Socio socio : consultarSociosPrestatario) {
+							System.out.println("- " + socio);
+						}
 					}
+					
 					break;
 
 				case 0:
@@ -277,11 +314,12 @@ public class Main {
 				default:
 					System.out.println("Opción no válida. Intente de nuevo.");
 				}
+				
 			} catch (BDException e) {
-				System.out.println("Error al ejecutar opcion del Menu Socios: " + e.getMessage());
+				System.out.println("Error en la consulta, mensaje de error:  " + e.getMessage());
 				
 			} catch (SocioException e) {
-				System.out.println("Error con socio: " + e.getMessage());
+				System.out.println(e.getMessage());
 
 			}
 		} while (opcion != 0);
@@ -355,20 +393,27 @@ public class Main {
 					if (consultarTodosPrestamos.isEmpty()) {
 						System.out.println("No se encontro ningun prestamo");
 					} else {
-						System.out.println(consultarTodosPrestamos);
+						System.out.println("Los prestamos encontrados: ");
+						
+						for (Prestamo prestamo : consultarTodosPrestamos) {
+							System.out.println("- " + prestamo);
+						}
 					}
 					break;
 
 				case 5:
 					System.out.println("Consultar préstamos no devueltos...");
 
-					ArrayList<Prestamo> consultarLosPrestamosNoDevueltos = AccesoPrestamo
-							.consultarLosPrestamosNoDevueltos();
+					ArrayList<Prestamo> consultarLosPrestamosNoDevueltos = AccesoPrestamo.consultarLosPrestamosNoDevueltos();
 
 					if (consultarLosPrestamosNoDevueltos.isEmpty()) {
 						System.out.println("No se encontro ningun prestamo no devuelto");
 					} else {
-						System.out.println(consultarLosPrestamosNoDevueltos);
+						System.out.println("Los prestamos no devueltos encontrados: ");
+						
+						for (Prestamo prestamo : consultarLosPrestamosNoDevueltos) {
+							System.out.println("- " + prestamo);
+						}
 					}
 					break;
 
@@ -384,8 +429,13 @@ public class Main {
 						System.out.println("No se encontro ninguna devolucion para esta fecha");
 
 					} else {
-						System.out.println(consultarPrestamosExtendidosConFechaDevolucion);
+						System.out.println("Los prestamos realizados en la fecha: " + fechaInicio);
+						
+						for (PrestamoExtendido prestamo : consultarPrestamosExtendidosConFechaDevolucion) {
+							System.out.println("- " + prestamo);
+						}
 					}
+					
 					break;
 
 				case 0:
@@ -396,6 +446,7 @@ public class Main {
 				default:
 					System.out.println("Opción no válida. Intente de nuevo.");
 				}
+				
 			} catch (BDException e) {
 				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
 				
@@ -438,6 +489,7 @@ public class Main {
 
 			case 0:
 				System.out.println("Saliendo del programa...");
+				
 				break;
 
 			default:
@@ -448,5 +500,3 @@ public class Main {
 		
 	}
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
