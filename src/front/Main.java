@@ -197,8 +197,8 @@ public class Main {
 					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
 					String correo = Teclado.leerCadena("Introduce el correo");
 
-					//Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
-					//boolean añadirSocio = AccesoSocio.agregarSocio(socio);
+					Socio socio = new Socio(0, dni, nombre, domicilio, telefono, correo);
+					boolean añadirSocio = AccesoSocio.agregarSocio(socio);
 					break;
 
 				case 2:
