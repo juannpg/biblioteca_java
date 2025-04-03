@@ -191,14 +191,14 @@ public class Main {
 				switch (opcion) {
 				case 1:
 					System.out.println("Insertar socio...");
-//					String dni = Teclado.leerCadena("Introduce el DNI");
-//					String nombre = Teclado.leerCadena("Introduce el nombre");
-//					String domicilio = Teclado.leerCadena("Introducir el domicilio");
-//					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
-//					String correo = Teclado.leerCadena("Introduce el correo");
-//
-//					Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
-//					boolean añadirSocio = AccesoSocio.añadirSocio(socio);
+					String dni = Teclado.leerCadena("Introduce el DNI");
+					String nombre = Teclado.leerCadena("Introduce el nombre");
+					String domicilio = Teclado.leerCadena("Introducir el domicilio");
+					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
+					String correo = Teclado.leerCadena("Introduce el correo");
+
+					//Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
+					//boolean añadirSocio = AccesoSocio.agregarSocio(socio);
 					break;
 
 				case 2:
@@ -235,7 +235,7 @@ public class Main {
 					// pedir datos al usuario
 					String localidad = Teclado.leerCadena("Introduce una localidad");
 
-					ArrayList<Socio> consultarSociosLocalidad = AccesoSocio.consultarSociosLocalidad(localidad);
+					ArrayList<Socio> consultarSociosLocalidad = AccesoSocio.consultarSociosPorLocalidadOrdenadosPorNombre(localidad);
 
 					if (consultarSociosLocalidad.isEmpty()) {
 						System.out.println();
