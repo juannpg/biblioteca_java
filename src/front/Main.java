@@ -209,9 +209,8 @@ public class Main {
 					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
 					String correo = Teclado.leerCadena("Introduce el correo");
 
-					Socio socio = new Socio(dni, nombre, domicilio, telefono, correo);
+					Socio socio = new Socio(0, dni, nombre, domicilio, telefono, correo);
 					boolean agregarSocio = AccesoSocio.agregarSocio(socio);
-					
 					if (!agregarSocio) {
 						System.out.println("No se pudo agegar un nuevo socio");
 					} else {

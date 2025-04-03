@@ -40,9 +40,9 @@ public class AccesoSocio {
 	        ps.setString(1, socio.getDni());
 	        ps.setString(2, socio.getNombre());
 	        ps.setString(3, socio.getDomicilio());
+	        
 	        ps.setString(4, socio.getTelefono());
 	        ps.setString(5, socio.getCorreo());
-
 	        resultados = ps.executeUpdate();
 	    } catch (SQLException e) {
 	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
