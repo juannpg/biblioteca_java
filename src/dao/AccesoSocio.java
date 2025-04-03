@@ -289,7 +289,7 @@ public class AccesoSocio {
 	}
 	
 	/**
-	 * metodo hecho por juan para un metodo de prestamo. no poner en el main si no se necesita
+	 * metodo hecho por juan para un metodo de prestamo. No poner en el main si no se necesita
 	 * @param codigoSocio
 	 * @return
 	 * @throws BDException
