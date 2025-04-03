@@ -244,8 +244,8 @@ public class Main {
 						System.out.println("No hay ningun socio");
 					} else {
 						System.out.println("Lista de socios encontrados: ");
-						for (Socio socio : consultarTodosSocios) {
-							System.out.println("- " + socio);
+						for (Socio socio1 : consultarTodosSocios) {
+							System.out.println("- " + socio1);
 						}
 					}
 
@@ -263,8 +263,8 @@ public class Main {
 						System.out.println("No se encontro nigun Socio en esta localidad");
 					} else {
 						System.out.println("Lista de socios encontrados en la localidad: " + localidad);
-						for (Socio socio : consultarSociosPorLocalidadOrdenadosPorNombre) {
-							System.out.println("- " + socio);
+						for (Socio socio2 : consultarSociosPorLocalidadOrdenadosPorNombre) {
+							System.out.println("- " + socio2);
 						}
 					}
 
@@ -280,8 +280,8 @@ public class Main {
 					} else {
 						System.out.println("Lista de socios sin préstamos: ");
 
-						for (Socio socio : consultarSociosNoPrestatario) {
-							System.out.println("- " + socio);
+						for (Socio socio3 : consultarSociosNoPrestatario) {
+							System.out.println("- " + socio3);
 						}
 
 					}
@@ -300,8 +300,8 @@ public class Main {
 					} else {
 						System.out.println("Lista de socios encontrados en la fecha: " + fecha);
 
-						for (Socio socio : consultarSociosPrestatario) {
-							System.out.println("- " + socio);
+						for (Socio socio4 : consultarSociosPrestatario) {
+							System.out.println("- " + socio4);
 						}
 					}
 
