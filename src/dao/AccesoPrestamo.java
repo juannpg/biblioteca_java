@@ -127,7 +127,7 @@ public class AccesoPrestamo {
             
             filasAfectadas = psInsert.executeUpdate();
         } catch (SQLException e) {
-            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+            throw new ExcepcionPrestamo(ExcepcionPrestamo.NO_EXISTE_LIBRO_SOCIO);
         } finally {
             if (conexion != null) {
                 ConfigSQLite.cerrarConexion(conexion);
