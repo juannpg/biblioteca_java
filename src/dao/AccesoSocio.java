@@ -285,46 +285,5 @@ public class AccesoSocio {
 	    }
 	    return socios;
 	}
-	
-	/**
-	 * metodo hecho por juan para un metodo de prestamo. no poner en el main si no se necesita
-	 * @param codigoSocio
-	 * @return
-	 * @throws BDException
-	 */
-	public static Socio consultarSocioPorCodigo(int codigoSocio) throws BDException {
-		Socio socio = null;
-		
-		Connection conexion = null;
-        try {
-            conexion = ConfigSQLite.abrirConexion();
-            
-            String query = "select * from socio where codigo = ?";
-            PreparedStatement ps = conexion.prepareStatement(query);
-            ps.setInt(1, codigoSocio);
-            
-            ResultSet resultados = ps.executeQuery();
-            
-            if (resultados.next()) {
-            	socio = new Socio(
-            		codigoSocio,
-            		resultados.getString("dni"),
-            		resultados.getString("nombre"),
-            		resultados.getString("domicilio"),
-            		resultados.getString("telefono"),
-            		resultados.getString("correo")
-    			);
-            }
-            
-        } catch (SQLException e) {
-            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-        } finally {
-            if (conexion != null) {
-                ConfigSQLite.cerrarConexion(conexion);
-            }
-        }
-        
-        return socio;
-	}
 }
 
