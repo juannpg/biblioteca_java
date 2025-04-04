@@ -23,10 +23,11 @@ public class Libro {
 
 	@Override
 	public String toString() {
-		return "Libro [código=" + codigo + ", isbn=" + isbn + ",\n título=" + titulo + ", escritor=" + escritor
-				+ ",\n año publicación=" + anyo_publicacion + ", puntuación=" + puntuacion + "]\n";
+	    return String.format(
+	        "Libro [Código: %d | ISBN: %s | Título: %s | Escritor: %s | Año: %d | Puntuación: %.1f]",
+	        codigo, isbn, titulo, escritor, anyo_publicacion, puntuacion
+	    );
 	}
-
 
 	public int getCodigo() {
 		return codigo;

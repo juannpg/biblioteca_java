@@ -68,10 +68,11 @@ public class Socio {
 
 	@Override
 	public String toString() {
-		return "Socio [codigo=" + codigo + ", dni=" + dni + "\n nombre=" + nombre + ", domicilio=" + domicilio
-				+ ", telefono=" + telefono + "\n correo=" + correo + "]";
-	}
-	
+	    return String.format(
+	        "Socio [Código: %d | DNI: %s | Nombre: %s | Teléfono: %s | Correo: %s]",
+	        codigo, dni, nombre, telefono, correo
+	    );
+	}	
 	
 }
 

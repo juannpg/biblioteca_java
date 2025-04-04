@@ -24,21 +24,18 @@ public class Prestamo {
 
   @Override
   public String toString() {
-    return (
-      "Prestamo [libro=" +
-      libro +
-      " socio=" +
-      socio +
-      ", fechaInicio=" +
-      fechaInicio +
-      ", fechaFin=" +
-      fechaFin +
-      ", fechaDevolucion=" +
-      fechaDevolucion +
-      "]"
-    );
+      return String.format(
+          "Préstamo:\n" +
+          "  - Libro: %s\n" +
+          "  - Socio: %s\n" +
+          "  - Fechas: Inicio=%s | Fin=%s | Devolución=%s",
+          libro.toString().replace("Libro [", "").replace("]", ""), // Elimina corchetes para evitar redundancia
+          socio.toString().replace("Socio [", "").replace("]", ""),
+          fechaInicio,
+          fechaFin,
+          (fechaDevolucion != null) ? fechaDevolucion : "Pendiente"
+      );
   }
-
   public Libro getLibro() {
     return libro;
   }
