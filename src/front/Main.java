@@ -380,7 +380,8 @@ public class Main {
 							fechaInicio, fechaFin);
 
 					if (!actualizarPrestamo) {
-						System.out.println("No se pudo actualizar el prestamo. No existe un préstamo con esos datos identificativos.");
+						System.out.println(
+								"No se pudo actualizar el prestamo. No existe un préstamo con esos datos identificativos.");
 					} else {
 						System.out.println("Prestamo actualizado con exito");
 					}
@@ -478,34 +479,57 @@ public class Main {
 	public static void menuAvanzado() {
 		int opcion = -1;
 		do {
-//			try {
+			try {
 				escribirMenuOpcionesAvanzadas();
 				System.out.println();
 				opcion = Teclado.leerEntero("Opción: ");
 
 				switch (opcion) {
+				
 				case 1:
-					System.out.println("Insertar préstamo...");
+					System.out.println("Consulta libros...");
+
+					ArrayList<Libro> consultarMenorLibroPrestado = AccesoLibro.consultarMenorLibroPrestado();
+
+					if (consultarMenorLibroPrestado.isEmpty()) {
+						System.out.println("No se encontro ningun libro prestado");
+					} else {
+						for (Libro libro : consultarMenorLibroPrestado) {
+							System.out.println("- " + libro);
+						}
+
+					}
 					break;
 
 				case 2:
-					System.out.println("Actualizar préstamo...");
+					System.out.println("Consulta socio...");
+
+					ArrayList<Libro> consultarLibroPrestadoInferiorMedia = AccesoLibro
+							.consultarLibroPrestadoInferiorMedia();
+
+					if (consultarLibroPrestadoInferiorMedia.isEmpty()) {
+						System.out.println(" No se encontro ningun libro");
+					} else {
+						for (Libro libro : consultarLibroPrestadoInferiorMedia) {
+							System.out.println("- " + libro);
+						}
+					}
 					break;
 
 				case 3:
-					System.out.println("Eliminar préstamo...");
+					System.out.println("Consulta libros...");
 					break;
 
 				case 4:
-					System.out.println("Consultar todos los préstamos...");
+					System.out.println("Consulta socio...");
 					break;
 
 				case 5:
-					System.out.println("Consultar préstamos no devueltos...");
+					System.out.println("Consulta libros...");
 					break;
 
 				case 6:
-					System.out.println("Consultar préstamos realizados en una fecha...");
+					System.out.println("Consultar socios...");
 					break;
 
 				case 0:
@@ -517,9 +541,11 @@ public class Main {
 					System.out.println("Opción no válida. Intente de nuevo.");
 				}
 
-//			} catch (BDException e) {
-//				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
-//			}
+			} catch (BDException e) {
+				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+			} catch (LibroException e) {
+				System.out.println("Error al ejecutar opcion del Menu Libro: " + e.getMessage());
+			}
 
 		} while (opcion != 0);
 
