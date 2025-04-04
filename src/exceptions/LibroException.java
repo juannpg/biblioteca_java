@@ -9,6 +9,7 @@ public class LibroException extends Exception {
 	public static final String ERROR_CANCELAR_SETCONTRASENA = "Se canceló el inicio de sesión";
 	public static final String ERROR_NO_EXISTE = "No existe la tupla buscada";
 	public static final String ERROR_NOLIBRO = "No existe ningún libro con ese código en la base de datos.";
+	public static final String ERROR_LIBRO_ISBNEXISTE = "Ya existe un libro con ese ISBN en la base de datos.";
 	public static final String ERROR_LIBRO_BDEmpty = "No se ha encontrado ningún libro en la base de datos.";
 	public static final String ERROR_LIBRO_PRESTAMO = "El libro está referenciado en un préstamo de la base de datos.";
 	public static final String ERROR_LIBRO_NOESCRITOR = "No existe ningún libro con ese escritor en la base de datos.";

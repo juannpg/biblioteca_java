@@ -11,12 +11,12 @@ import config.ConfigSQLite;
 import exceptions.BDException;
 import exceptions.LibroException;
 import models.Libro;
-import models.Prestamo;
+
 
 public class AccesoLibro {
 
 	/**
-	 * Insertar un ibro dado un isbn, título, escritor, año de publicación y
+	 * Insertar un libro dado un isbn, título, escritor, año de publicación y
 	 * puntuación del libro.
 	 * 
 	 * @param isbn
@@ -27,9 +27,10 @@ public class AccesoLibro {
 	 * @return si se ha insertado o no
 	 * @throws BDException si la consulta sale mal
 	 * @author xiomara ratto
+	 * @throws LibroException  si existe un libro con ese isbn dentro de la base de datos
 	 */
 	public static boolean anadirLibro(String isbn, String titulo, String escritor, int anyo_publicacion,
-			float puntuacion) throws BDException {
+			float puntuacion) throws BDException, LibroException {
 
 		PreparedStatement ps = null;
 		Connection conexion = null;
@@ -50,6 +51,10 @@ public class AccesoLibro {
 			ps.setFloat(5, puntuacion);
 
 			filas = ps.executeUpdate();
+			
+			if (existeISBN(isbn)) {
+				throw new LibroException(LibroException.ERROR_LIBRO_ISBNEXISTE);
+			}
 
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -64,6 +69,44 @@ public class AccesoLibro {
 	}
 
 	/**
+	 * Consultar si existe un isbn dentro de la base de datos
+	 * 
+	 * @param isbn
+	 * @return
+	 * @throws BDException si la consulta sale mal
+	 * @author xiomara ratto
+	 */
+	private static boolean existeISBN(String isbn) throws BDException {
+		PreparedStatement ps = null;
+		Connection conexion = null;
+		boolean existe = false;
+		
+		try {
+			// Conexión a la base de datos
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from libro where isbn like ?;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setString(1, isbn);
+
+			ResultSet resultados = ps.executeQuery();
+			
+			if(resultados.next()) {
+				existe = true;
+			}
+			
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return existe;
+	}
+	
+	
+	/**
 	 * Consultar si un libro está referenciado a un prestámo o no
 	 * 
 	 * @param codigo
@@ -74,16 +117,22 @@ public class AccesoLibro {
 	private static boolean esPrestatario(int codigo) throws BDException {
 		PreparedStatement ps = null;
 		Connection conexion = null;
-		int resultados = 0;
+		boolean existe = false;
+		
 		try {
 			// Conexión a la base de datos
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "SELECT * FROM libro JOIN prestamo ON (libro.codigo = prestamo.codigo_libro) WHERE libro.codigo = ?;";
+			String query = "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ?;";
 
 			ps = conexion.prepareStatement(query);
 			ps.setInt(1, codigo);
 
-			resultados = ps.executeUpdate();
+			ResultSet resultados = ps.executeQuery();
+			
+			if(resultados.next()) {
+				existe = true;
+			}
+			
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
@@ -91,7 +140,7 @@ public class AccesoLibro {
 				ConfigSQLite.cerrarConexion(conexion);
 			}
 		}
-		return resultados == 1;
+		return existe;
 	}
 
 	/**
@@ -316,7 +365,7 @@ public class AccesoLibro {
 		try {
 
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.fecha_devolucion like '?';";
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.fecha_devolucion like ?;";
 
 			ps = conexion.prepareStatement(query);
 
