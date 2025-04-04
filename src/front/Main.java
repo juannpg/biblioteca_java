@@ -229,7 +229,7 @@ public class Main {
 						System.out.println("Socio eliminado correctamente.");
 
 					} else {
-						System.out.println("No se pudo eliminar el Socio.");
+						System.out.println("No se pudo eliminar el Socio. No existe ese socio");
 
 					}
 
