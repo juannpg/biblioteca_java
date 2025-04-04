@@ -443,7 +443,7 @@ public class AccesoLibro {
 	 * 
 	 * @return los libros consultados con menor numero de veces prestadas
 	 * @throws BDException    si la consulta sale mal
-	 * @throws LibroException si no hay ningún libro 
+	 * @throws LibroException si no hay ningún libro
 	 * @author xiomara ratto
 	 */
 	public static ArrayList<Libro> consultarMenorLibroPrestado() throws BDException, LibroException {
@@ -458,8 +458,8 @@ public class AccesoLibro {
 
 			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion, count(p.codigo_libro) as veces_prestado "
 					+ "from libro l left join prestamo p on l.codigo = p.codigo_libro " + "group by l.codigo "
-					+ "having count(p.codigo_libro) = (select min(contador) "
-					+ "from (select count(*) as contador from prestamo group by codigo_libro) as prestamo_count "
+					+ "having count(p.codigo_libro) = (select min(cantidad) "
+					+ "from (select count(*) as cantidad from prestamo group by codigo_libro) as prestamo_count) "
 					+ "order by veces_prestado ASC;";
 
 			ps = conexion.prepareStatement(query);
@@ -493,14 +493,14 @@ public class AccesoLibro {
 		}
 		return listaLibros;
 	}
-	
+
 	/**
-	 * Consultar los libros que han sido prestados (incluyendo los libros no devueltos) una cantidad
-	 * de veces inferior a la media.
+	 * Consultar los libros que han sido prestados (incluyendo los libros no
+	 * devueltos) una cantidad de veces inferior a la media.
 	 * 
 	 * @return los libros prestados inferiores a la media
 	 * @throws BDException    si la consulta sale mal
-	 * @throws LibroException si no hay ningún libro 
+	 * @throws LibroException si no hay ningún libro
 	 * @author xiomara ratto
 	 */
 	public static ArrayList<Libro> consultarLibroPrestadoInferiorMedia() throws BDException, LibroException {
@@ -513,10 +513,10 @@ public class AccesoLibro {
 
 			conexion = ConfigSQLite.abrirConexion();
 
-			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion, count(p.codigo_libro) as veces_prestado"
-					+ "from libro l join prestamo p on l.codigo = p.codigo_libro"
-					+ "group by l.codigo having count(p.codigo_libro) < (select avg(contador)"
-					+ "from (select count(*) as contador from prestamo group by codigo_libro) as prestamo_count);";
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion, count(p.codigo_libro) as veces_prestado "
+					+ "from libro l join prestamo p on l.codigo = p.codigo_libro " + "group by l.codigo "
+					+ "having count(p.codigo_libro) < (select avg(cantidad) "
+					+ "from (select count(*) as cantidad from prestamo group by codigo_libro) as prestamo_count);";
 
 			ps = conexion.prepareStatement(query);
 
@@ -549,8 +549,5 @@ public class AccesoLibro {
 		}
 		return listaLibros;
 	}
-	
-	
-	
 
 }
