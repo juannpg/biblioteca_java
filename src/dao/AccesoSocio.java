@@ -292,5 +292,16 @@ public class AccesoSocio {
 	    }
 	    return socios;
 	}
+	public static void main(String[] args) {
+		try {
+			eliminarSocio(12);
+		} catch (BDException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SocioException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
 
