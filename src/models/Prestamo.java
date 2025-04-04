@@ -27,7 +27,7 @@ public class Prestamo {
     return (
       "Prestamo [libro=" +
       libro +
-      ", socio=" +
+      " socio=" +
       socio +
       ", fechaInicio=" +
       fechaInicio +
