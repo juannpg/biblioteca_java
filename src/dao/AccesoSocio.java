@@ -34,7 +34,7 @@ public class AccesoSocio {
 	        // Conexión a la base de datos
 	        conexion = ConfigSQLite.abrirConexion();
 	        String query = "INSERT INTO socio (dni, nombre, domicilio, telefono, correo) "
-	                     + "VALUES ( ?, ?, ?, ?)";
+	                     + "VALUES (?, ?, ?, ?, ?)";
 
 	        ps = conexion.prepareStatement(query);
 	        ps.setString(1, socio.getDni());
@@ -68,19 +68,16 @@ public class AccesoSocio {
 	    try {
 	        // Conexión a la base de datos
 	        conexion = ConfigSQLite.abrirConexion();
-	        String query = "DELETE FROM socio WHERE codigo=?";
+	        String query = "delete from socio where codigo = ?";
 
 	        ps = conexion.prepareStatement(query);
 	        ps.setInt(1,codigoSocio);
 
-	        resultados = ps.executeUpdate();
-	        
-	        if (resultados == 0) {
-	        	throw new SocioException(SocioException.ERROR_NOSOCIO);
-	        }
 	        if (esPrestatario(codigoSocio)) {
 	        	throw new SocioException(SocioException.ERROR_SOCIO_PRESTAMO);
 	        }
+	        
+	        resultados = ps.executeUpdate();
 	    } catch (SQLException e) {
 	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 	    } finally {
@@ -146,7 +143,7 @@ public class AccesoSocio {
 	    Connection conexion = null;
 	    try {
 	    	conexion = ConfigSQLite.abrirConexion();
-	    	 String queryString = "SELECT * FROM socio JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.fecha_devolucion IS NULL;";
+	    	 String queryString = "SELECT * FROM socio left JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.fecha_devolucion IS not NULL or prestamo.codigo_socio is null";
 	    	 ps = conexion.prepareStatement(queryString);
 
 	    	 ResultSet resultados = ps.executeQuery();
@@ -228,24 +225,29 @@ public class AccesoSocio {
 	private static boolean esPrestatario(int codigoSocio) throws BDException, SocioException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
-	    int resultados = 0;
+	    boolean esPrestatario = false;
 	    try {
 	        // Conexión a la base de datos
 	        conexion = ConfigSQLite.abrirConexion();
-	        String query = "SELECT * FROM socio JOIN prestamo ON (socio.codigo = prestamos.codigo_socio) WHERE socio.codigo = ?";
+	        String query = "SELECT * FROM socio "
+	        + "JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) "
+	        + "WHERE socio.codigo = ? and prestamo.fecha_devolucion is null";
 
 	        ps = conexion.prepareStatement(query);
 	        ps.setInt(1,codigoSocio);
 
-	        resultados = ps.executeUpdate();
+	        ResultSet resultados = ps.executeQuery();
+	        if (resultados.next()) {
+	        	esPrestatario = true;
+	        }
 	    } catch (SQLException e) {
-	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+	        throw new BDException("ERROR ES PRESTATARIO" + BDException.ERROR_QUERY + e.getMessage());
 	    } finally {
 	        if (conexion != null) {
 	            ConfigSQLite.cerrarConexion(conexion);
 	        }
 	    }
-	    return resultados == 1;
+	    return esPrestatario;
 	}
 
 	/**
@@ -263,14 +265,16 @@ public class AccesoSocio {
 	    try {
 	       conexion = ConfigSQLite.abrirConexion();
 	       String query = "SELECT * FROM socio "
-                    + "WHERE lower(domicilio) LIKE lower(?) "
-                    + "AND lower(domicilio) LIKE lower(?) "
-                    + "ORDER BY nombre";
+                   + "WHERE lower(domicilio) LIKE lower(?) "
+                   + "AND lower(domicilio) NOT LIKE lower(?) "
+                   + "AND lower(domicilio) NOT LIKE lower(?) "
+                   + "ORDER BY nombre";
 	       
 	       ps = conexion.prepareStatement(query);
 	
-	       ps.setString(1, "%," + localidad + "%");
-        ps.setString(2, "%, " + localidad + "%");
+	       ps.setString(1, "%" + localidad + "%");
+	       ps.setString(2, "c/ " + localidad + "%");
+	       ps.setString(3, "calle " + localidad + "%");
 
 	        ResultSet resultados = ps.executeQuery();
 	        
