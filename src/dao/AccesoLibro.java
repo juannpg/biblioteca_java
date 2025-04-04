@@ -12,7 +12,6 @@ import exceptions.BDException;
 import exceptions.LibroException;
 import models.Libro;
 
-
 public class AccesoLibro {
 
 	/**
@@ -27,7 +26,8 @@ public class AccesoLibro {
 	 * @return si se ha insertado o no
 	 * @throws BDException si la consulta sale mal
 	 * @author xiomara ratto
-	 * @throws LibroException  si existe un libro con ese isbn dentro de la base de datos
+	 * @throws LibroException si existe un libro con ese isbn dentro de la base de
+	 *                        datos
 	 */
 	public static boolean anadirLibro(String isbn, String titulo, String escritor, int anyo_publicacion,
 			float puntuacion) throws BDException, LibroException {
@@ -40,6 +40,11 @@ public class AccesoLibro {
 		try {
 
 			conexion = ConfigSQLite.abrirConexion();
+
+			if (existeISBN(isbn)) {
+				throw new LibroException(LibroException.ERROR_LIBRO_ISBNEXISTE);
+			}
+
 			String query = "insert into libro (isbn, titulo, escritor, anyo_publicacion, puntuacion ) VALUES (?, ?, ?, ?, ?);";
 
 			ps = conexion.prepareStatement(query);
@@ -51,10 +56,6 @@ public class AccesoLibro {
 			ps.setFloat(5, puntuacion);
 
 			filas = ps.executeUpdate();
-			
-			if (existeISBN(isbn)) {
-				throw new LibroException(LibroException.ERROR_LIBRO_ISBNEXISTE);
-			}
 
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -80,7 +81,7 @@ public class AccesoLibro {
 		PreparedStatement ps = null;
 		Connection conexion = null;
 		boolean existe = false;
-		
+
 		try {
 			// Conexión a la base de datos
 			conexion = ConfigSQLite.abrirConexion();
@@ -90,11 +91,11 @@ public class AccesoLibro {
 			ps.setString(1, isbn);
 
 			ResultSet resultados = ps.executeQuery();
-			
-			if(resultados.next()) {
+
+			if (resultados.next()) {
 				existe = true;
 			}
-			
+
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
@@ -104,8 +105,7 @@ public class AccesoLibro {
 		}
 		return existe;
 	}
-	
-	
+
 	/**
 	 * Consultar si un libro está referenciado a un prestámo o no
 	 * 
@@ -118,7 +118,7 @@ public class AccesoLibro {
 		PreparedStatement ps = null;
 		Connection conexion = null;
 		boolean existe = false;
-		
+
 		try {
 			// Conexión a la base de datos
 			conexion = ConfigSQLite.abrirConexion();
@@ -128,11 +128,11 @@ public class AccesoLibro {
 			ps.setInt(1, codigo);
 
 			ResultSet resultados = ps.executeQuery();
-			
-			if(resultados.next()) {
+
+			if (resultados.next()) {
 				existe = true;
 			}
-			
+
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
@@ -225,9 +225,9 @@ public class AccesoLibro {
 
 				listaLibros.add(libro);
 
-				if (listaLibros.isEmpty()) {
-					throw new LibroException(LibroException.ERROR_LIBRO_BDEmpty);
-				}
+			}
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_BDEmpty);
 			}
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -281,9 +281,9 @@ public class AccesoLibro {
 
 				listaLibros.add(libro);
 
-				if (listaLibros.isEmpty()) {
-					throw new LibroException(LibroException.ERROR_LIBRO_NOESCRITOR);
-				}
+			}
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_NOESCRITOR);
 			}
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -313,7 +313,7 @@ public class AccesoLibro {
 		try {
 
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.codigo_libro is null;";
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.codigo_libro is null or p.fecha_devolucion is not null;";
 
 			ps = conexion.prepareStatement(query);
 
@@ -331,9 +331,9 @@ public class AccesoLibro {
 
 				listaLibros.add(libro);
 
-				if (listaLibros.isEmpty()) {
-					throw new LibroException(LibroException.ERROR_LIBRO_NOPRESTADO);
-				}
+			}
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_NOPRESTADO);
 			}
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -365,7 +365,102 @@ public class AccesoLibro {
 		try {
 
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.fecha_devolucion like ?;";
+
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion from libro l left join prestamo p on l.codigo = p.codigo_libro where p.fecha_devolucion = ?;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setString(1, fecha_devolucion);
+
+			ResultSet resultados = ps.executeQuery();
+
+			while (resultados.next()) {
+				int codigo = resultados.getInt("codigo");
+				String isbn = resultados.getString("isbn");
+				String titulo = resultados.getString("titulo");
+				String escritor_libro = resultados.getString("escritor");
+				int anyo_publicacion = resultados.getInt("anyo_publicacion");
+				float puntuacion = resultados.getFloat("puntuacion");
+
+				Libro libro = new Libro(codigo, isbn, titulo, escritor_libro, anyo_publicacion, puntuacion);
+
+				listaLibros.add(libro);
+			}
+
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_NODEVUELTO);
+			}
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return listaLibros;
+	}
+
+	/**
+	 * metodo hecho por juan para un metodo de acceso prestamo. no es necesario en
+	 * el main
+	 * 
+	 * @param codigoLibro
+	 * @return
+	 * @throws BDException
+	 */
+	public static Libro consultarLibroPorCodigo(int codigoLibro) throws BDException {
+		Libro libro = null;
+
+		Connection conexion = null;
+		try {
+			conexion = ConfigSQLite.abrirConexion();
+
+			String query = "select * from libro where codigo = ?";
+			PreparedStatement ps = conexion.prepareStatement(query);
+			ps.setInt(1, codigoLibro);
+
+			ResultSet resultados = ps.executeQuery();
+
+			if (resultados.next()) {
+				libro = new Libro(codigoLibro, resultados.getString("isbn"), resultados.getString("titulo"),
+						resultados.getString("escritor"), resultados.getInt("anyo_publicacion"),
+						resultados.getFloat("puntuacion"));
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+
+		return libro;
+
+	}
+
+	/**
+	 * Consultar el libro o los libros que ha/n sido prestado/s menos veces
+	 * 
+	 * @return los libros consultados con menor numero de veces prestadas
+	 * @throws BDException    si la consulta sale mal
+	 * @throws LibroException si no hay ningún libro 
+	 * @author xiomara ratto
+	 */
+	public static ArrayList<Libro> consultarMenorLibroPrestado() throws BDException, LibroException {
+		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
+
+		PreparedStatement ps = null;
+		Connection conexion = null;
+
+		try {
+
+			conexion = ConfigSQLite.abrirConexion();
+
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion, count(p.codigo_libro) as veces_prestado "
+					+ "from libro l left join prestamo p on l.codigo = p.codigo_libro " + "group by l.codigo "
+					+ "having count(p.codigo_libro) = (select min(contador) "
+					+ "from (select count(*) as contador from prestamo group by codigo_libro) as prestamo_count "
+					+ "order by veces_prestado ASC;";
 
 			ps = conexion.prepareStatement(query);
 
@@ -383,10 +478,12 @@ public class AccesoLibro {
 
 				listaLibros.add(libro);
 
-				if (listaLibros.isEmpty()) {
-					throw new LibroException(LibroException.ERROR_LIBRO_NODEVUELTO);
-				}
 			}
+
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_BDEmpty);
+			}
+
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 		} finally {
@@ -396,46 +493,64 @@ public class AccesoLibro {
 		}
 		return listaLibros;
 	}
-		
-		/**
-		 * metodo hecho por juan para un metodo de acceso prestamo. no es necesario en el main
-		 * @param codigoLibro
-		 * @return
-		 * @throws BDException
-		 */
-		public static Libro consultarLibroPorCodigo(int codigoLibro) throws BDException {
-			Libro libro = null;
-			
-			Connection conexion = null;
-	        try {
-	            conexion = ConfigSQLite.abrirConexion();
-	            
-	            String query = "select * from libro where codigo = ?";
-	            PreparedStatement ps = conexion.prepareStatement(query);
-	            ps.setInt(1, codigoLibro);
-	            
-	            ResultSet resultados = ps.executeQuery();
-	            
-	            if (resultados.next()) {
-	            	libro = new Libro(
-	            		codigoLibro,
-	            		resultados.getString("isbn"),
-	            		resultados.getString("titulo"),
-	            		resultados.getString("escritor"),
-	            		resultados.getInt("anyo_publicacion"),
-	            		resultados.getFloat("puntuacion")
-        			);
-	            }
-	            
-	        } catch (SQLException e) {
-	            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-	        } finally {
-	            if (conexion != null) {
-	                ConfigSQLite.cerrarConexion(conexion);
-	            }
-	        }
-	        
-	        return libro;
+	
+	/**
+	 * Consultar los libros que han sido prestados (incluyendo los libros no devueltos) una cantidad
+	 * de veces inferior a la media.
+	 * 
+	 * @return los libros prestados inferiores a la media
+	 * @throws BDException    si la consulta sale mal
+	 * @throws LibroException si no hay ningún libro 
+	 * @author xiomara ratto
+	 */
+	public static ArrayList<Libro> consultarLibroPrestadoInferiorMedia() throws BDException, LibroException {
+		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
 
+		PreparedStatement ps = null;
+		Connection conexion = null;
+
+		try {
+
+			conexion = ConfigSQLite.abrirConexion();
+
+			String query = "select l.codigo, l.isbn, l.titulo, l.escritor, l.anyo_publicacion, l.puntuacion, count(p.codigo_libro) as veces_prestado"
+					+ "from libro l join prestamo p on l.codigo = p.codigo_libro"
+					+ "group by l.codigo having count(p.codigo_libro) < (select avg(contador)"
+					+ "from (select count(*) as contador from prestamo group by codigo_libro) as prestamo_count);";
+
+			ps = conexion.prepareStatement(query);
+
+			ResultSet resultados = ps.executeQuery();
+
+			while (resultados.next()) {
+				int codigo = resultados.getInt("codigo");
+				String isbn = resultados.getString("isbn");
+				String titulo = resultados.getString("titulo");
+				String escritor_libro = resultados.getString("escritor");
+				int anyo_publicacion = resultados.getInt("anyo_publicacion");
+				float puntuacion = resultados.getFloat("puntuacion");
+
+				Libro libro = new Libro(codigo, isbn, titulo, escritor_libro, anyo_publicacion, puntuacion);
+
+				listaLibros.add(libro);
+
+			}
+
+			if (listaLibros.isEmpty()) {
+				throw new LibroException(LibroException.ERROR_LIBRO_BDEmpty);
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return listaLibros;
 	}
+	
+	
+	
+
 }
