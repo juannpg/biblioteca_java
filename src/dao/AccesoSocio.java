@@ -377,14 +377,42 @@ public class AccesoSocio {
 	    return socios;
 	}
 	
-	public static void main (String[] args) {
-		try {
-			ArrayList<Socio> socios = consultarSociosMayorPrestamos();
-			System.out.println(socios);
-		} catch (BDException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static ArrayList<Socio> consultarSociosMayorMedia() throws BDException{
+		PreparedStatement ps = null;
+	    Connection conexion = null;
+	    ArrayList<Socio> socios = new ArrayList<>();
+ 
+	    try {
+	       conexion = ConfigSQLite.abrirConexion();
+	       String query = "SELECT socio.* FROM socio JOIN ("
+		       		+ "SELECT codigo_socio,COUNT(*) as total_prestamos FROM prestamo GROUP BY codigo_socio HAVING COUNT(*) > "
+		       		+ "(SELECT avg(cantidad) FROM ("
+		       		+ "SELECT COUNT(*) AS cantidad FROM prestamo GROUP BY codigo_socio))"
+		       		+ ") prestamo ON socio.codigo = prestamo.codigo_socio";
+				
+	       
+	       ps = conexion.prepareStatement(query);
+	        ResultSet resultados = ps.executeQuery();
+	        
+	        while (resultados.next()) {
+	        	socios.add(new Socio(
+        			resultados.getInt("codigo"),
+	        		resultados.getString("dni"),
+	        		resultados.getString("nombre"),
+	        		resultados.getString("domicilio"),
+	        		resultados.getString("telefono"),
+	        		resultados.getString("correo")
+    			));
+	        }
+	    } catch (SQLException e) {
+	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+	    } finally {
+	        if (conexion != null) {
+	            ConfigSQLite.cerrarConexion(conexion);
+	        }
+	    }
+	    return socios;
+
 	}
 	
 }
