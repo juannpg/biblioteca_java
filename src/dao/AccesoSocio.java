@@ -77,9 +77,7 @@ public class AccesoSocio {
 	        if (resultados == 0) {
 	        	throw new SocioException(SocioException.ERROR_NOSOCIO);
 	        }
-	        if (esPrestatario(codigoSocio)) {
-	        	throw new SocioException(SocioException.ERROR_SOCIO_PRESTAMO);
-	        }
+	        
 	    } catch (SQLException e) {
 	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
 	    } finally {
