@@ -365,7 +365,7 @@ public class Main {
 							fechaInicio, fechaFin);
 
 					if (!actualizarPrestamo) {
-						System.out.println("No se pudo actualizar el prestamo");
+						System.out.println("No se pudo actualizar el prestamo. No existe un préstamo con esos datos identificativos.");
 					} else {
 						System.out.println("Prestamo actualizado con exito");
 					}
