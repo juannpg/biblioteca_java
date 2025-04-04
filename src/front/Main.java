@@ -493,35 +493,64 @@ public class Main {
 
 					if (consultarMenorLibroPrestado.isEmpty()) {
 						System.out.println("No se encontro ningun libro prestado");
+						
 					} else {
 						for (Libro libro : consultarMenorLibroPrestado) {
 							System.out.println("- " + libro);
+							
 						}
-
 					}
+					
 					break;
 
 				case 2:
 					System.out.println("Consulta socio...");
+					
+					ArrayList<Socio> consultarSociosMayorPrestamos = AccesoSocio.consultarSociosMayorPrestamos();
+					
+					if (consultarSociosMayorPrestamos.isEmpty()) {
+						System.out.println("No se encontro ningun prestamo");
+						
+					} else {
+						for (Socio socio : consultarSociosMayorPrestamos) {
+							
+							System.out.println("- " + socio);
+						}
+					}
+					
+					break;
+
+				case 3:
+					System.out.println("Consulta libros...");
 
 					ArrayList<Libro> consultarLibroPrestadoInferiorMedia = AccesoLibro
 							.consultarLibroPrestadoInferiorMedia();
 
 					if (consultarLibroPrestadoInferiorMedia.isEmpty()) {
 						System.out.println(" No se encontro ningun libro");
+						
 					} else {
 						for (Libro libro : consultarLibroPrestadoInferiorMedia) {
+							
 							System.out.println("- " + libro);
 						}
-					}
-					break;
-
-				case 3:
-					System.out.println("Consulta libros...");
+					}					
 					break;
 
 				case 4:
 					System.out.println("Consulta socio...");
+					ArrayList<Socio> consultarSociosMayorMedia = AccesoSocio.consultarSociosMayorMedia();
+					
+					if (consultarSociosMayorMedia.isEmpty()) {
+						System.out.println("No se encontro ningun socio");
+						
+					} else {
+						for (Socio socio : consultarSociosMayorMedia) {
+							
+							System.out.println("- " + socio);
+						}
+					}
+					
 					break;
 
 				case 5:
