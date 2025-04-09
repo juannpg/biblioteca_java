@@ -122,7 +122,8 @@ public class AccesoLibro {
 		try {
 			// Conexión a la base de datos
 			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ?;";
+			String query = "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ? "
+					+ "and prestamo.fecha_devolucion is null;";
 
 			ps = conexion.prepareStatement(query);
 			ps.setInt(1, codigo);
@@ -161,6 +162,10 @@ public class AccesoLibro {
 		int filas = 0;
 
 		try {
+			
+			if (esPrestatario(codigo)) {
+				throw new LibroException(LibroException.ERROR_LIBRO_PRESTAMO);
+			}
 
 			conexion = ConfigSQLite.abrirConexion();
 			String query = "delete from libro where codigo = ?;";
@@ -174,9 +179,7 @@ public class AccesoLibro {
 			if (filas == 0) {
 				throw new LibroException(LibroException.ERROR_NOLIBRO);
 			}
-			if (esPrestatario(codigo)) {
-				throw new LibroException(LibroException.ERROR_LIBRO_PRESTAMO);
-			}
+			
 
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
