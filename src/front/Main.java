@@ -554,11 +554,13 @@ public class Main {
 					break;
 
 				case 5:
-					System.out.println("Consulta libros...");
+					System.out.println("Consultar prestamo...");
+					ArrayList<PrestamoExtendido> consultarPrestamosExtendidosConFechaDevolucion = AccesoPrestamo.consultarPrestamosExtendidosConFechaDevolucion();
+					
 					break;
 
 				case 6:
-					System.out.println("Consultar socios...");
+					System.out.println("Consultar prestamo...");
 					break;
 
 				case 0:
