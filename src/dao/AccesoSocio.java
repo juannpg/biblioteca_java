@@ -143,7 +143,7 @@ public class AccesoSocio {
 	    Connection conexion = null;
 	    try {
 	    	conexion = ConfigSQLite.abrirConexion();
-	    	 String queryString = "SELECT * FROM socio left JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.fecha_devolucion IS not NULL or prestamo.codigo_socio is null";
+	    	 String queryString = "SELECT distinct * FROM socio left JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.fecha_devolucion IS not NULL or prestamo.codigo_socio is null";
 	    	 ps = conexion.prepareStatement(queryString);
 
 	    	 ResultSet resultados = ps.executeQuery();

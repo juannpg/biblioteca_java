@@ -4,13 +4,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import config.ConfigSQLite;
 import exceptions.BDException;
 import exceptions.ExcepcionPrestamo;
+import models.Libro;
 import models.Prestamo;
 import models.PrestamoExtendido;
+import models.Socio;
 
 public class AccesoPrestamo {
 	/**
@@ -85,6 +92,38 @@ public class AccesoPrestamo {
 		return false;
 	}
 	
+	public static boolean tienePrestamoHoy(int codigoSocio) throws BDException {
+		Connection conexion = null;
+		boolean tienePrestamo = false;
+		
+		try {
+            conexion = ConfigSQLite.abrirConexion();
+
+            String queryTienePrestamo = "select codigo_socio from prestamo where codigo_socio = ? and fecha_inicio = ?";
+            PreparedStatement psTienePrestamo = conexion.prepareStatement(queryTienePrestamo);
+            
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate fechaActual = LocalDate.now();
+            String fechaActualParseada = fechaActual.format(formato);
+            System.out.println(fechaActualParseada);
+            
+            psTienePrestamo.setInt(1, codigoSocio);
+            psTienePrestamo.setString(2,  fechaActualParseada);
+            ResultSet resultadoTienePrestamo = psTienePrestamo.executeQuery();
+
+            if (resultadoTienePrestamo.next()) {
+            	tienePrestamo = true;
+            }
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return tienePrestamo;
+	}
+	
 	/**
 	 * Inserta un préstamo dados un codigo de libro, un codigo de socio, la fecha de inicio y la de fin.
 	 * @param codigoLibro
@@ -96,12 +135,17 @@ public class AccesoPrestamo {
 	 * @throws ExcepcionPrestamo Si ese libro ya está prestado (imprimir el mensaje de la excepcion)
 	 * @throws ExcepcionPrestamo Si ese socio ya tiene un libro prestado (imprimir el mensaje de la excepcion)
 	 */
-	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
+	public static boolean insertarPrestamo(int codigoLibro, int codigoSocio, String fechaFin) throws BDException, ExcepcionPrestamo {
 		Connection conexion = null;
 		int filasAfectadas = 0;
 		
         try {
             conexion = ConfigSQLite.abrirConexion();
+            
+            boolean tienePrestamoHoy = tienePrestamoHoy(codigoSocio);
+            if (tienePrestamoHoy) {
+            	throw new ExcepcionPrestamo(ExcepcionPrestamo.YA_PRESTAMO_HOY);
+            }
 
         	// comprobamos si el libro está prestado
         	boolean estaPrestado = estaLibroPrestado(codigoLibro);
@@ -115,14 +159,27 @@ public class AccesoPrestamo {
         		throw new ExcepcionPrestamo(ExcepcionPrestamo.TIENE_PRESTADO);
             }
             
+            // comprobamos si la fecha de fin es menor a la fecha 
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate fechaActual = LocalDate.now();
+            LocalDate fechaFinParseada;
+
+            fechaFinParseada = LocalDate.parse(fechaFin, formato);
+
+            if (fechaFinParseada.isBefore(fechaActual.plus(Period.ofDays(1)))) {
+                throw new ExcepcionPrestamo(ExcepcionPrestamo.FECHA_MENOR_HOY);
+            }
+            
             // lo demás
             String queryInsert = "insert into prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin)"
             + " values (?, ?, ? ,?)";
             PreparedStatement psInsert = conexion.prepareStatement(queryInsert);
             
+            String fechaFormateada = fechaActual.format(formato);
+            
             psInsert.setInt(1, codigoLibro);
             psInsert.setInt(2, codigoSocio);
-            psInsert.setString(3,  fechaInicio);
+            psInsert.setString(3,  fechaFormateada);
             psInsert.setString(4, fechaFin);
             
             filasAfectadas = psInsert.executeUpdate();
@@ -329,6 +386,99 @@ public class AccesoPrestamo {
         }
         
         return prestamos;
+	}
+	
+	/**
+	 * consulta el numero de veces que ha sido prestado un libro, junto con su titulo e isbn
+	 * 
+	 * EJEMPLO DE USO:
+	 * 		try {
+	 *   		LinkedHashMap<Libro, Integer> mapa = consultarNumeroDeVecesLibrosPrestados();
+	 * 			for (Libro l : mapa.keySet()) {
+	 *				System.out.println("ISBN: " + l.getIsbn() + ", Titulo: " + l.getTitulo() + ", numero de veces prestado: " + mapa.get(l));
+	 * 			}
+	 * 		} catch (BDException e) {
+	 * 			System.out.println(e.getMessage());
+	 * 		}
+	 * 
+	 * @return un mapa de llave libro y objeto veces que se ha prestado
+	 * @throws BDException
+	 */
+	public static LinkedHashMap<Libro, Integer> consultarNumeroDeVecesLibrosPrestados() throws BDException {
+		LinkedHashMap<Libro, Integer> mapa = new LinkedHashMap<>();
+		
+		Connection conexion = null;
+		try {
+			conexion = ConfigSQLite.abrirConexion();
+			
+			String query = "select l.isbn, l.titulo, count(p.codigo_libro) as \"numero_de_veces_prestado\" from libro l "
+			+ "join prestamo p on p.codigo_libro = l.codigo "
+			+ "group by l.isbn, l.titulo "
+			+ "order by count(p.codigo_libro) desc";
+			
+			PreparedStatement ps = conexion.prepareStatement(query);
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	mapa.put(
+        			new Libro(
+    					resultados.getString("isbn"),
+    					resultados.getString("titulo")
+					),
+        			resultados.getInt("numero_de_veces_prestado")
+    			);
+            }
+		} catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return mapa;
+	}
+	
+	/**
+	 * consulta el numero de veces que un socio ha hecho prestamos, con su dni y nombre
+	 * @return un mapa de llave socio y objeto veces que ha prestado
+	 * @throws BDException
+	 */
+	public static LinkedHashMap<Socio, Integer> consultarNumeroDeVecesPrestamosDeSocios() throws BDException {
+		LinkedHashMap<Socio, Integer> mapa = new LinkedHashMap<>();
+		
+		Connection conexion = null;
+		try {
+			conexion = ConfigSQLite.abrirConexion();
+			
+			String query = "select s.dni, s.nombre, count(p.codigo_socio) as \"numero_de_prestamos\" from socio s "
+			+ "join prestamo p on p.codigo_socio = s.codigo "
+			+ "group by s.dni, s.nombre "
+			+ "order by count(p.codigo_socio) desc";
+			
+			PreparedStatement ps = conexion.prepareStatement(query);
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	mapa.put(
+        			new Socio(
+    					resultados.getString("dni"),
+    					resultados.getString("nombre")
+					),
+        			resultados.getInt("numero_de_prestamos")
+    			);
+            }
+		} catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return mapa;
 	}
 }
 
