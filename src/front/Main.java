@@ -1,7 +1,7 @@
 package front;
 
 import java.util.ArrayList;
-
+import java.util.LinkedHashMap;
 import dao.AccesoLibro;
 import dao.AccesoPrestamo;
 import dao.AccesoSocio;
@@ -16,6 +16,7 @@ import models.Libro;
 import models.Prestamo;
 import models.PrestamoExtendido;
 import models.Socio;
+import regex.FuncionesRegex;
 
 public class Main {
 
@@ -91,9 +92,15 @@ public class Main {
 					System.out.println("Insertar libro...");
 					// Pedir datos al usuario
 					String isbn = Teclado.leerCadena("Introduce el ISBN: ");
+					while (!FuncionesRegex.isbnBien(isbn)) {
+						isbn = Teclado.leerCadena("Introduce un ISBN valido (isbn-10 o isbn-13): ");
+					}
 					String titulo = Teclado.leerCadena("Introduce el título: ");
 					String escritor = Teclado.leerCadena("Introduce el escritor: ");
 					int anyoPublicacion = Teclado.leerEntero("Introduce el año de publicación: ");
+					while (!FuncionesRegex.anyoBien(anyoPublicacion)) {
+						anyoPublicacion = Teclado.leerEntero("Año válido por favor: ");
+					}
 					float puntuacion = (float) Teclado.leerReal("Introduce la puntuación: ");
 
 					boolean anadiLibro = AccesoLibro.anadirLibro(isbn, titulo, escritor, anyoPublicacion, puntuacion);
@@ -219,11 +226,19 @@ public class Main {
 				case 1:
 					System.out.println("Insertar socio...");
 					String dni = Teclado.leerCadena("Introduce el DNI");
+					while (!FuncionesRegex.dniBien(dni)) {
+						dni = Teclado.leerCadena("Introduce un DNI váliodo: ");
+					}
 					String nombre = Teclado.leerCadena("Introduce el nombre");
 					String domicilio = Teclado.leerCadena("Introducir el domicilio");
 					String telefono = Teclado.leerCadena("Introduce el numero de telefono");
+					while (!FuncionesRegex.telefonoBien(telefono)) {
+						telefono = Teclado.leerCadena("Telefono valido: ");
+					}
 					String correo = Teclado.leerCadena("Introduce el correo");
-
+					while (!FuncionesRegex.correoBien(correo)) {
+						correo = Teclado.leerCadena("Correo valido: ");
+					}
 					Socio socio = new Socio(0, dni, nombre, domicilio, telefono, correo);
 					boolean agregarSocio = AccesoSocio.agregarSocio(socio);
 					if (!agregarSocio) {
@@ -307,6 +322,9 @@ public class Main {
 					System.out.println("Consultar socios con préstamos en una fecha...");
 					// pedir datos al usuario
 					String fecha = Teclado.leerCadena("Introduce una fecha (yyyy-mm-dd)");
+					while (!FuncionesRegex.fechaBien(fecha)) {
+						fecha = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 
 					ArrayList<Socio> consultarSociosPrestatario = AccesoSocio.consultarSociosPrestatario(fecha);
 
@@ -355,11 +373,12 @@ public class Main {
 					// pedir datos al usuario
 					int codigoLibro = Teclado.leerEntero("Introduce el codigo del libro");
 					int codigoSocio = Teclado.leerEntero("Introduce el codigo del socio");
-					String fechaInicio = Teclado.leerCadena("Introduce la fecha de inicio");
 					String fechaFin = Teclado.leerCadena("Introduce la fecha de fin");
+					while (!FuncionesRegex.fechaBien(fechaFin)) {
+						fechaFin = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 
-					boolean insertarPrestamo = AccesoPrestamo.insertarPrestamo(codigoLibro, codigoSocio, fechaInicio,
-							fechaFin);
+					boolean insertarPrestamo = AccesoPrestamo.insertarPrestamo(codigoLibro, codigoSocio, fechaFin);
 
 					if (!insertarPrestamo) {
 						System.out.println("El prestamo no se pudo realizar");
@@ -373,8 +392,14 @@ public class Main {
 					// pedir datos al usuario
 					codigoLibro = Teclado.leerEntero("Introduce el codigo del libro");
 					codigoSocio = Teclado.leerEntero("Introduce el codigo del socio");
-					fechaInicio = Teclado.leerCadena("Introduce la fecha de inicio");
+					String fechaInicio = Teclado.leerCadena("Introduce la fecha de inicio");
+					while (!FuncionesRegex.fechaBien(fechaInicio)) {
+						fechaInicio = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 					fechaFin = Teclado.leerCadena("Introduce la fecha de fin");
+					while (!FuncionesRegex.fechaBien(fechaFin)) {
+						fechaFin = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 
 					boolean actualizarPrestamo = AccesoPrestamo.actualizarPrestamo(codigoLibro, codigoSocio,
 							fechaInicio, fechaFin);
@@ -440,6 +465,9 @@ public class Main {
 					System.out.println("Consultar préstamos realizados en una fecha...");
 					// pedir datos al usuario
 					fechaInicio = Teclado.leerCadena("Introduce la fecha de inicio");
+					while (!FuncionesRegex.fechaBien(fechaInicio)) {
+						fechaInicio = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 
 					ArrayList<PrestamoExtendido> consultarPrestamosExtendidosConFechaDevolucion = AccesoPrestamo
 							.consultarPrestamosExtendidosConFechaDevolucion(fechaInicio);
@@ -485,7 +513,7 @@ public class Main {
 				opcion = Teclado.leerEntero("Opción: ");
 
 				switch (opcion) {
-				
+
 				case 1:
 					System.out.println("Consulta libros...");
 
@@ -493,31 +521,31 @@ public class Main {
 
 					if (consultarMenorLibroPrestado.isEmpty()) {
 						System.out.println("No se encontro ningun libro prestado");
-						
+
 					} else {
 						for (Libro libro : consultarMenorLibroPrestado) {
 							System.out.println("- " + libro);
-							
+
 						}
 					}
-					
+
 					break;
 
 				case 2:
 					System.out.println("Consulta socio...");
-					
+
 					ArrayList<Socio> consultarSociosMayorPrestamos = AccesoSocio.consultarSociosMayorPrestamos();
-					
+
 					if (consultarSociosMayorPrestamos.isEmpty()) {
 						System.out.println("No se encontro ningun prestamo");
-						
+
 					} else {
 						for (Socio socio : consultarSociosMayorPrestamos) {
-							
+
 							System.out.println("- " + socio);
 						}
 					}
-					
+
 					break;
 
 				case 3:
@@ -528,39 +556,61 @@ public class Main {
 
 					if (consultarLibroPrestadoInferiorMedia.isEmpty()) {
 						System.out.println(" No se encontro ningun libro");
-						
+
 					} else {
 						for (Libro libro : consultarLibroPrestadoInferiorMedia) {
-							
+
 							System.out.println("- " + libro);
 						}
-					}					
+					}
 					break;
 
 				case 4:
 					System.out.println("Consulta socio...");
 					ArrayList<Socio> consultarSociosMayorMedia = AccesoSocio.consultarSociosMayorMedia();
-					
+
 					if (consultarSociosMayorMedia.isEmpty()) {
 						System.out.println("No se encontro ningun socio");
-						
+
 					} else {
 						for (Socio socio : consultarSociosMayorMedia) {
-							
+
 							System.out.println("- " + socio);
 						}
 					}
-					
+
 					break;
 
 				case 5:
 					System.out.println("Consultar prestamo...");
-					ArrayList<PrestamoExtendido> consultarPrestamosExtendidosConFechaDevolucion = AccesoPrestamo.consultarPrestamosExtendidosConFechaDevolucion();
-					
+					LinkedHashMap<Libro, Integer> consultarNumeroDeVecesLibrosPrestados = AccesoPrestamo
+							.consultarNumeroDeVecesLibrosPrestados();
+
+					if (consultarNumeroDeVecesLibrosPrestados.isEmpty()) {
+						System.out.println("No se encontro ningun prestamo");
+					} else {
+						for (Libro l : consultarNumeroDeVecesLibrosPrestados.keySet()) {
+							System.out.println("ISBN: " + l.getIsbn() + ", Titulo: " + l.getTitulo()
+									+ ", numero de veces prestado: " + consultarNumeroDeVecesLibrosPrestados.get(l));
+						}
+					}
+
 					break;
 
 				case 6:
-					System.out.println("Consultar prestamo...");
+					System.out.println("Consultar prestamos...");
+					LinkedHashMap<Socio, Integer> consultarNumeroDeVecesPrestamosDeSocios = AccesoPrestamo
+							.consultarNumeroDeVecesPrestamosDeSocios();
+
+					if (consultarNumeroDeVecesPrestamosDeSocios.isEmpty()) {
+						System.out.println("No se encontro ningun prestamo");
+					} else {
+						for (Socio s : consultarNumeroDeVecesPrestamosDeSocios.keySet()) {
+							System.out.println("DNI: " + s.getDni() + ", Nombre: " + s.getNombre()
+									+ ", numero de veces prestado: " + consultarNumeroDeVecesPrestamosDeSocios.get(s));
+						}
+					}
+
 					break;
 
 				case 0:

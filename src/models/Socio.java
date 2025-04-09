@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Objects;
+
 public class Socio {
 	private int codigo;
 	private String dni;
@@ -16,6 +18,11 @@ public class Socio {
 		this.domicilio = domicilio;
 		this.telefono = telefono;
 		this.correo = correo;
+	}
+
+	public Socio(String dni,String nombre){
+		this.dni = dni;
+		this.nombre = nombre;
 	}
 
 	public int getCodigo() {
@@ -68,11 +75,16 @@ public class Socio {
 
 	@Override
 	public String toString() {
+
 	    return String.format(
 	        "Socio [Código: %d | DNI: %s | Nombre: %s | Teléfono: %s | Correo: %s]",
 	        codigo, dni, nombre, telefono, correo
 	    );
 	}	
-	
+
+@Override public int hashCode(){return Objects.hash(dni);}
+
+@Override public boolean equals(Object obj){if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;Socio other=(Socio)obj;return Objects.equals(dni,other.dni);}
+		
 }
 
