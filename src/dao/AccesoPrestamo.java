@@ -8,10 +8,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import config.ConfigSQLite;
 import exceptions.BDException;
 import exceptions.ExcepcionPrestamo;
+import models.Libro;
 import models.Prestamo;
 import models.PrestamoExtendido;
 
@@ -383,5 +386,58 @@ public class AccesoPrestamo {
         
         return prestamos;
 	}
+	
+	/**
+	 * consulta el numero de veces que ha sido prestado un libro, junto con su titulo e isbn
+	 * 
+	 * EJEMPLO DE USO:
+	 * 		try {
+	 *   		LinkedHashMap<Libro, Integer> mapa = consultarNumeroDeVecesLibrosPrestados();
+	 * 			for (Libro l : mapa.keySet()) {
+	 *				System.out.println("ISBN: " + l.getIsbn() + ", Titulo: " + l.getTitulo() + ", numero de veces prestado: " + mapa.get(l));
+	 * 			}
+	 * 		} catch (BDException e) {
+	 * 			System.out.println(e.getMessage());
+	 * 		}
+	 * 
+	 * @return un mapa de llave libro y objeto veces que se ha prestado
+	 * @throws BDException
+	 */
+	public static LinkedHashMap<Libro, Integer> consultarNumeroDeVecesLibrosPrestados() throws BDException {
+		LinkedHashMap<Libro, Integer> mapa = new LinkedHashMap<>();
+		
+		Connection conexion = null;
+		try {
+			conexion = ConfigSQLite.abrirConexion();
+			
+			String query = "select l.isbn, l.titulo, count(p.codigo_libro) as \"numero_de_veces_prestado\" from libro l "
+			+ "join prestamo p on p.codigo_libro = l.codigo "
+			+ "group by l.isbn, l.titulo "
+			+ "order by count(p.codigo_libro) desc";
+			
+			PreparedStatement ps = conexion.prepareStatement(query);
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	mapa.put(
+        			new Libro(
+    					resultados.getString("isbn"),
+    					resultados.getString("titulo")
+					),
+        			resultados.getInt("numero_de_veces_prestado")
+    			);
+            }
+		} catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return mapa;
+	}
+	
 }
 
