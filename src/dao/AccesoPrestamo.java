@@ -17,6 +17,7 @@ import exceptions.ExcepcionPrestamo;
 import models.Libro;
 import models.Prestamo;
 import models.PrestamoExtendido;
+import models.Socio;
 
 public class AccesoPrestamo {
 	/**
@@ -439,5 +440,45 @@ public class AccesoPrestamo {
         return mapa;
 	}
 	
+	/**
+	 * consulta el numero de veces que un socio ha hecho prestamos, con su dni y nombre
+	 * @return un mapa de llave socio y objeto veces que ha prestado
+	 * @throws BDException
+	 */
+	public static LinkedHashMap<Socio, Integer> consultarNumeroDeVecesPrestamosDeSocios() throws BDException {
+		LinkedHashMap<Socio, Integer> mapa = new LinkedHashMap<>();
+		
+		Connection conexion = null;
+		try {
+			conexion = ConfigSQLite.abrirConexion();
+			
+			String query = "select s.dni, s.nombre, count(p.codigo_socio) as \"numero_de_prestamos\" from socio s "
+			+ "join prestamo p on p.codigo_socio = s.codigo "
+			+ "group by s.dni, s.nombre "
+			+ "order by count(p.codigo_socio) desc";
+			
+			PreparedStatement ps = conexion.prepareStatement(query);
+            
+            ResultSet resultados = ps.executeQuery();
+            
+            while (resultados.next()) {
+            	mapa.put(
+        			new Socio(
+    					resultados.getString("dni"),
+    					resultados.getString("nombre")
+					),
+        			resultados.getInt("numero_de_prestamos")
+    			);
+            }
+		} catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            if (conexion != null) {
+                ConfigSQLite.cerrarConexion(conexion);
+            }
+        }
+        
+        return mapa;
+	}
 }
 
