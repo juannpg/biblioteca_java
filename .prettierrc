@@ -4,5 +4,5 @@
                     "prettier-plugin-java"
                 ],
     "parser":  "java",
-    "tabWidth":  4
+    "tabWidth":  2
 }

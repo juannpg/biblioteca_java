@@ -1,11 +1,15 @@
 # BIBLIOTECA Vidrios Rotos
 
+## Herramientas extra usadas
+
+- Prettier: para dar formato a todo el código basado en los estándares de la comunidad.
+
 ## Labores
 
 - Xiomara: Funcionalidad libro.
 - Iria: Funcionalidad socio.
 - Dan: Funcionalidad Main y arreglo de bugs.
-- Juan: Funcionalidad préstamo y flujo de git.
+- Juan: Funcionalidad préstamo, testing y flujo de git.
 
 ## Ramas:
 
@@ -24,4 +28,4 @@ Siempre antes de trabajar hacer un `git pull` de main y un `git merge main` a su
 ## Enlaces:
 
 - [notion](https://www.notion.so/1c7d1af1155a80678aa0cb19f64e2e76?v=1c7d1af1155a802687ae000c975d18d1&pvs=4)
-- [jira](https://my-coffee.atlassian.net/jira/software/projects/BP/boards/67atlOrigin=eyJpIjoiZjgxYWY0MjNkZGE0NDYxNDllODEwMjc2YzA3MTkzNjUiLCJwIjoiaiJ9)
+- [jira](https://my-coffee.atlassian.net/jira/software/projects/SB/boards/100)
