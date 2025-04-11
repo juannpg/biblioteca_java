@@ -1,0 +1,19 @@
+{
+  "name": "biblioteca",
+  "version": "1.0.0",
+  "description": "- Xiomara: Funcionalidad libro.\r - Iria: Funcionalidad socio.\r - Dan: Funcionalidad Main y arreglo de bugs.\r - Juan: Funcionalidad préstamo y flujo de git.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.5.3",
+    "prettier-plugin-java": "^2.6.7"
+  }
+}

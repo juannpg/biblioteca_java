@@ -12,5 +12,4 @@ public class BDException extends Exception {
     public BDException(String mensaje) {
         super("Error: " + mensaje);
     }
-
 }
