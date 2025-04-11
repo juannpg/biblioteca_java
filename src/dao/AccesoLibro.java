@@ -30,8 +30,7 @@ public class AccesoLibro {
       // Conexión a la base de datos
       conexion = ConfigSQLite.abrirConexion();
       String query =
-        "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ? " +
-        "and prestamo.fecha_devolucion is null;";
+        "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ?";
 
       ps = conexion.prepareStatement(query);
       ps.setInt(1, codigo);

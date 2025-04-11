@@ -63,10 +63,10 @@ public class AccesoSocio {
     try {
       // Conexión a la base de datos
       conexion = ConfigSQLite.abrirConexion();
-      String query = "select * from socio where codigo like ?;";
+      String query = "select * from socio where dni like ?;";
 
       ps = conexion.prepareStatement(query);
-      ps.setInt(1, socio.getCodigo());
+      ps.setString(1, socio.getDni());
 
       ResultSet resultados = ps.executeQuery();
 
