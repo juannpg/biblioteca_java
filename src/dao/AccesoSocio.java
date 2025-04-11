@@ -25,14 +25,18 @@ public class AccesoSocio {
 	 * @param socio
 	 * @return booleano indicando si se ha agregado o no se ha agregado
 	 * @throws BDException
+	 * @throws SocioException 
 	 */
-	public static boolean agregarSocio(Socio socio) throws BDException {
+	public static boolean agregarSocio(Socio socio) throws BDException, SocioException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
 	    int resultados = 0;
 	    try {
 	        // Conexión a la base de datos
 	        conexion = ConfigSQLite.abrirConexion();
+	        if (existeSocio(socio)) {
+	        	throw new SocioException(SocioException.USUARIO_EXISTE);
+	        }
 	        String query = "INSERT INTO socio (dni, nombre, domicilio, telefono, correo) "
 	                     + "VALUES (?, ?, ?, ?, ?)";
 
@@ -132,7 +136,7 @@ public class AccesoSocio {
 	}
 
 	/**
-	 * Metodo para consultar los Socios que no han hecho prestamo
+	 * Metodo para consultar los Socios que no han hecho prestamo, es decir que no aparecen en la tabla de prestamos
 	 * @return ArrayList de los Socios correspondientes
 	 * @throws BDException
 	 * @throws SocioException
@@ -143,7 +147,7 @@ public class AccesoSocio {
 	    Connection conexion = null;
 	    try {
 	    	conexion = ConfigSQLite.abrirConexion();
-	    	 String queryString = "SELECT distinct * FROM socio left JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.fecha_devolucion IS not NULL or prestamo.codigo_socio is null";
+	    	 String queryString = "SELECT distinct * FROM socio left JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) WHERE prestamo.codigo_socio is null";
 	    	 ps = conexion.prepareStatement(queryString);
 
 	    	 ResultSet resultados = ps.executeQuery();
@@ -248,6 +252,35 @@ public class AccesoSocio {
 	        }
 	    }
 	    return esPrestatario;
+	}
+	
+	private static boolean existeSocio(Socio socio) throws BDException {
+		PreparedStatement ps = null;
+		Connection conexion = null;
+		boolean existe = false;
+
+		try {
+			// Conexión a la base de datos
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from socio where codigo like ?;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setInt(1, socio.getCodigo());
+
+			ResultSet resultados = ps.executeQuery();
+
+			if (resultados.next()) {
+				existe = true;
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return existe;
 	}
 
 	/**

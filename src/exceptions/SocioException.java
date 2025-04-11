@@ -8,6 +8,7 @@ public class SocioException extends Exception {
     public static final String ERROR_CARGAR_DRIVER = "Error al cargar driver";
     public static final String ERROR_CANCELAR_SETCONTRASENA = "Se canceló el inicio de sesión";
     public static final String ERROR_NO_EXISTE = "No existe la tupla buscada";
+    public static final String USUARIO_EXISTE = "El usuario ya estaba en la base de datos";
     public static final String ERROR_NOSOCIO = "No existe ningún socio con ese código en la base de datos.";
     public static final String ERROR_BDEmpty = "No existe ningún socio con ese código en la base de datos.";
     public static final String ERROR_SOCIO_NOPRESTAMO= "No existe ningún socio sin préstamos en la base de datos.";
