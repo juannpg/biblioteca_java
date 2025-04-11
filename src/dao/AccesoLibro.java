@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import config.ConfigSQLite;
 
@@ -13,6 +14,82 @@ import exceptions.LibroException;
 import models.Libro;
 
 public class AccesoLibro {
+	/**
+	 * Consultar si un libro está referenciado a un prestámo o no
+	 * 
+	 * @param codigo
+	 * @return
+	 * @throws BDException si la consulta sale mal
+	 * @author xiomara ratto
+	 */
+	private static boolean esPrestatario(int codigo) throws BDException {
+		PreparedStatement ps = null;
+		Connection conexion = null;
+		boolean existe = false;
+
+		try {
+			// Conexión a la base de datos
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ? "
+					+ "and prestamo.fecha_devolucion is null;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setInt(1, codigo);
+
+			ResultSet resultados = ps.executeQuery();
+
+			if (resultados.next()) {
+				existe = true;
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return existe;
+	}
+
+	
+	/**
+	 * Consultar si existe un isbn dentro de la base de datos
+	 * 
+	 * @param isbn
+	 * @return
+	 * @throws BDException si la consulta sale mal
+	 * @author xiomara ratto
+	 */
+	private static boolean existeISBN(String isbn) throws BDException {
+		PreparedStatement ps = null;
+		Connection conexion = null;
+		boolean existe = false;
+
+		try {
+			// Conexión a la base de datos
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from libro where isbn like ?;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setString(1, isbn);
+
+			ResultSet resultados = ps.executeQuery();
+
+			if (resultados.next()) {
+				existe = true;
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return existe;
+	}
+	
 
 	/**
 	 * Insertar un libro dado un isbn, título, escritor, año de publicación y
@@ -67,81 +144,6 @@ public class AccesoLibro {
 
 		return filas == 1;
 
-	}
-
-	/**
-	 * Consultar si existe un isbn dentro de la base de datos
-	 * 
-	 * @param isbn
-	 * @return
-	 * @throws BDException si la consulta sale mal
-	 * @author xiomara ratto
-	 */
-	private static boolean existeISBN(String isbn) throws BDException {
-		PreparedStatement ps = null;
-		Connection conexion = null;
-		boolean existe = false;
-
-		try {
-			// Conexión a la base de datos
-			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro where isbn like ?;";
-
-			ps = conexion.prepareStatement(query);
-			ps.setString(1, isbn);
-
-			ResultSet resultados = ps.executeQuery();
-
-			if (resultados.next()) {
-				existe = true;
-			}
-
-		} catch (SQLException e) {
-			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-		} finally {
-			if (conexion != null) {
-				ConfigSQLite.cerrarConexion(conexion);
-			}
-		}
-		return existe;
-	}
-
-	/**
-	 * Consultar si un libro está referenciado a un prestámo o no
-	 * 
-	 * @param codigo
-	 * @return
-	 * @throws BDException si la consulta sale mal
-	 * @author xiomara ratto
-	 */
-	private static boolean esPrestatario(int codigo) throws BDException {
-		PreparedStatement ps = null;
-		Connection conexion = null;
-		boolean existe = false;
-
-		try {
-			// Conexión a la base de datos
-			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from libro join prestamo on (libro.codigo = prestamo.codigo_libro) where libro.codigo = ? "
-					+ "and prestamo.fecha_devolucion is null;";
-
-			ps = conexion.prepareStatement(query);
-			ps.setInt(1, codigo);
-
-			ResultSet resultados = ps.executeQuery();
-
-			if (resultados.next()) {
-				existe = true;
-			}
-
-		} catch (SQLException e) {
-			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-		} finally {
-			if (conexion != null) {
-				ConfigSQLite.cerrarConexion(conexion);
-			}
-		}
-		return existe;
 	}
 
 	/**
@@ -449,8 +451,8 @@ public class AccesoLibro {
 	 * @throws LibroException si no hay ningún libro
 	 * @author xiomara ratto
 	 */
-	public static ArrayList<Libro> consultarMenorLibroPrestado() throws BDException, LibroException {
-		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
+	public static LinkedHashMap<Libro, Integer> consultarMenorLibroPrestado() throws BDException, LibroException {
+		LinkedHashMap<Libro, Integer> listaLibros = new LinkedHashMap<Libro, Integer>();
 
 		PreparedStatement ps = null;
 		Connection conexion = null;
@@ -478,9 +480,9 @@ public class AccesoLibro {
 				float puntuacion = resultados.getFloat("puntuacion");
 
 				Libro libro = new Libro(codigo, isbn, titulo, escritor_libro, anyo_publicacion, puntuacion);
-
-				listaLibros.add(libro);
-
+				int vecesPrestado = resultados.getInt("veces_prestado");
+				
+				listaLibros.put(libro, vecesPrestado);
 			}
 
 			if (listaLibros.isEmpty()) {
@@ -506,8 +508,8 @@ public class AccesoLibro {
 	 * @throws LibroException si no hay ningún libro
 	 * @author xiomara ratto
 	 */
-	public static ArrayList<Libro> consultarLibroPrestadoInferiorMedia() throws BDException, LibroException {
-		ArrayList<Libro> listaLibros = new ArrayList<Libro>();
+	public static LinkedHashMap<Libro, Integer> consultarLibroPrestadoInferiorMedia() throws BDException, LibroException {
+		LinkedHashMap<Libro, Integer> listaLibros = new LinkedHashMap<Libro, Integer>();
 
 		PreparedStatement ps = null;
 		Connection conexion = null;
@@ -536,8 +538,9 @@ public class AccesoLibro {
 				float puntuacion = resultados.getFloat("puntuacion");
 
 				Libro libro = new Libro(codigo, isbn, titulo, escritor_libro, anyo_publicacion, puntuacion);
+				int vecesPrestado = resultados.getInt("veces_prestado");
 
-				listaLibros.add(libro);
+				listaLibros.put(libro, vecesPrestado);
 
 			}
 

@@ -182,6 +182,9 @@ public class Main {
 					System.out.println("Consultar libros devueltos en una fecha...");
 					// pedir datos al usuario
 					String fechaDevolucion = Teclado.leerCadena("Introruce una fecha: ");
+					while (!FuncionesRegex.fechaBien(fechaDevolucion)) {
+						fechaDevolucion = Teclado.leerCadena("Introduce una fecha valida (yyyy-mm-dd): ");
+					}
 
 					ArrayList<Libro> consultarLibrosDevueltos = AccesoLibro.consultarLibrosDevueltos(fechaDevolucion);
 
@@ -417,8 +420,12 @@ public class Main {
 					// pedir datos al usuario
 					codigoLibro = Teclado.leerEntero("Introduce el codigo del libro");
 					codigoSocio = Teclado.leerEntero("Introduce el codigo del socio");
+					fechaInicio = Teclado.leerCadena("Introduce la fecha de inicio");
+					while (!FuncionesRegex.fechaBien(fechaInicio)) {
+						fechaInicio = Teclado.leerCadena("Fecha valida (yyyy-mm-dd): ");
+					}
 
-					boolean eliminarPrestamo = AccesoPrestamo.eliminarPrestamo(codigoLibro, codigoSocio);
+					boolean eliminarPrestamo = AccesoPrestamo.eliminarPrestamo(codigoLibro, codigoSocio, fechaInicio);
 
 					if (!eliminarPrestamo) {
 						System.out.println("No se pudo eliminar el prestamo");
@@ -517,15 +524,14 @@ public class Main {
 				case 1:
 					System.out.println("Consulta libros...");
 
-					ArrayList<Libro> consultarMenorLibroPrestado = AccesoLibro.consultarMenorLibroPrestado();
+					LinkedHashMap<Libro, Integer> consultarMenorLibroPrestado = AccesoLibro.consultarMenorLibroPrestado();
 
 					if (consultarMenorLibroPrestado.isEmpty()) {
 						System.out.println("No se encontro ningun libro prestado");
 
 					} else {
-						for (Libro libro : consultarMenorLibroPrestado) {
-							System.out.println("- " + libro);
-
+						for (Libro libro : consultarMenorLibroPrestado.keySet()) {
+							System.out.println("- " + libro + " | veces prestado: " + consultarMenorLibroPrestado.get(libro));
 						}
 					}
 
@@ -534,15 +540,14 @@ public class Main {
 				case 2:
 					System.out.println("Consulta socio...");
 
-					ArrayList<Socio> consultarSociosMayorPrestamos = AccesoSocio.consultarSociosMayorPrestamos();
+					LinkedHashMap<Socio, Integer> consultarSociosMayorPrestamos = AccesoSocio.consultarSociosMayorPrestamos();
 
 					if (consultarSociosMayorPrestamos.isEmpty()) {
 						System.out.println("No se encontro ningun prestamo");
 
 					} else {
-						for (Socio socio : consultarSociosMayorPrestamos) {
-
-							System.out.println("- " + socio);
+						for (Socio socio : consultarSociosMayorPrestamos.keySet()) {
+							System.out.println("- " + socio + " | total prestamos: " + consultarSociosMayorPrestamos.get(socio));
 						}
 					}
 
@@ -551,31 +556,29 @@ public class Main {
 				case 3:
 					System.out.println("Consulta libros...");
 
-					ArrayList<Libro> consultarLibroPrestadoInferiorMedia = AccesoLibro
+					LinkedHashMap<Libro, Integer> consultarLibroPrestadoInferiorMedia = AccesoLibro
 							.consultarLibroPrestadoInferiorMedia();
 
 					if (consultarLibroPrestadoInferiorMedia.isEmpty()) {
 						System.out.println(" No se encontro ningun libro");
 
 					} else {
-						for (Libro libro : consultarLibroPrestadoInferiorMedia) {
-
-							System.out.println("- " + libro);
+						for (Libro libro : consultarLibroPrestadoInferiorMedia.keySet()) {
+							System.out.println("- " + libro + " | veces prestado: " + consultarLibroPrestadoInferiorMedia.get(libro));
 						}
 					}
 					break;
 
 				case 4:
 					System.out.println("Consulta socio...");
-					ArrayList<Socio> consultarSociosMayorMedia = AccesoSocio.consultarSociosMayorMedia();
+					LinkedHashMap<Socio, Integer> consultarSociosMayorMedia = AccesoSocio.consultarSociosMayorMedia();
 
 					if (consultarSociosMayorMedia.isEmpty()) {
 						System.out.println("No se encontro ningun socio");
 
 					} else {
-						for (Socio socio : consultarSociosMayorMedia) {
-
-							System.out.println("- " + socio);
+						for (Socio socio : consultarSociosMayorMedia.keySet()) {
+							System.out.println("- " + socio + " | total prestamos: " + consultarSociosMayorMedia.get(socio));
 						}
 					}
 

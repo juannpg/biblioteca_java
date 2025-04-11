@@ -3,7 +3,6 @@ package models;
 import java.util.Objects;
 
 public class Libro {
-	
 	private int codigo;
 	private String isbn;
 	private String titulo;
@@ -28,7 +27,6 @@ public class Libro {
 		this.titulo = titulo;
 	}
 
-
 @Override
 	public String toString() {
 	    return String.format(
@@ -36,6 +34,12 @@ public class Libro {
 	        codigo, isbn, titulo, escritor, anyo_publicacion, puntuacion
 	    );
 	}
+
+@Override public int hashCode(){return Objects.hash(isbn);}
+
+
+@Override public boolean equals(Object obj){if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;Libro other=(Libro)obj;return Objects.equals(isbn,other.isbn);}
+
 
 	public int getCodigo() {
 		return codigo;
@@ -95,18 +99,5 @@ public class Libro {
 	public void setPuntuacion(float puntuacion) {
 		this.puntuacion = puntuacion;
 	}
-
-
-@Override public int hashCode(){return Objects.hash(isbn);}
-
-
-@Override public boolean equals(Object obj){if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;Libro other=(Libro)obj;return Objects.equals(isbn,other.isbn);}
-	
-	
-	
-	
-	
-	
-	
 }
 

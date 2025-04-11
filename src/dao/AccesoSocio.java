@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.sqlite.SQLiteConfig;
@@ -19,6 +20,70 @@ import models.Libro;
 import models.Socio;
 
 public class AccesoSocio {
+	/**
+	 * Metodo creado para una excepcion, indica si un socio es prestatario
+	 * @param codigoSocio
+	 * @return
+	 * @throws BDException
+	 * @throws SocioException
+	 */
+	private static boolean esPrestatario(int codigoSocio) throws BDException, SocioException {
+	    PreparedStatement ps = null;
+	    Connection conexion = null;
+	    boolean esPrestatario = false;
+	    try {
+	        // Conexión a la base de datos
+	        conexion = ConfigSQLite.abrirConexion();
+	        String query = "SELECT * FROM socio "
+	        + "JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) "
+	        + "WHERE socio.codigo = ? and prestamo.fecha_devolucion is null";
+
+	        ps = conexion.prepareStatement(query);
+	        ps.setInt(1,codigoSocio);
+
+	        ResultSet resultados = ps.executeQuery();
+	        if (resultados.next()) {
+	        	esPrestatario = true;
+	        }
+	    } catch (SQLException e) {
+	        throw new BDException("ERROR ES PRESTATARIO" + BDException.ERROR_QUERY + e.getMessage());
+	    } finally {
+	        if (conexion != null) {
+	            ConfigSQLite.cerrarConexion(conexion);
+	        }
+	    }
+	    return esPrestatario;
+	}
+	
+	private static boolean existeSocio(Socio socio) throws BDException {
+		PreparedStatement ps = null;
+		Connection conexion = null;
+		boolean existe = false;
+
+		try {
+			// Conexión a la base de datos
+			conexion = ConfigSQLite.abrirConexion();
+			String query = "select * from socio where codigo like ?;";
+
+			ps = conexion.prepareStatement(query);
+			ps.setInt(1, socio.getCodigo());
+
+			ResultSet resultados = ps.executeQuery();
+
+			if (resultados.next()) {
+				existe = true;
+			}
+
+		} catch (SQLException e) {
+			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+		} finally {
+			if (conexion != null) {
+				ConfigSQLite.cerrarConexion(conexion);
+			}
+		}
+		return existe;
+	}
+
 	
 	/**
 	 * Metodo que permite agregar un Socio
@@ -219,69 +284,6 @@ public class AccesoSocio {
 	    }
 	    return todosSocioSP;
 	}
-	/**
-	 * Metodo creado para una excepcion, indica si un socio es prestatario
-	 * @param codigoSocio
-	 * @return
-	 * @throws BDException
-	 * @throws SocioException
-	 */
-	private static boolean esPrestatario(int codigoSocio) throws BDException, SocioException {
-	    PreparedStatement ps = null;
-	    Connection conexion = null;
-	    boolean esPrestatario = false;
-	    try {
-	        // Conexión a la base de datos
-	        conexion = ConfigSQLite.abrirConexion();
-	        String query = "SELECT * FROM socio "
-	        + "JOIN prestamo ON (socio.codigo = prestamo.codigo_socio) "
-	        + "WHERE socio.codigo = ? and prestamo.fecha_devolucion is null";
-
-	        ps = conexion.prepareStatement(query);
-	        ps.setInt(1,codigoSocio);
-
-	        ResultSet resultados = ps.executeQuery();
-	        if (resultados.next()) {
-	        	esPrestatario = true;
-	        }
-	    } catch (SQLException e) {
-	        throw new BDException("ERROR ES PRESTATARIO" + BDException.ERROR_QUERY + e.getMessage());
-	    } finally {
-	        if (conexion != null) {
-	            ConfigSQLite.cerrarConexion(conexion);
-	        }
-	    }
-	    return esPrestatario;
-	}
-	
-	private static boolean existeSocio(Socio socio) throws BDException {
-		PreparedStatement ps = null;
-		Connection conexion = null;
-		boolean existe = false;
-
-		try {
-			// Conexión a la base de datos
-			conexion = ConfigSQLite.abrirConexion();
-			String query = "select * from socio where codigo like ?;";
-
-			ps = conexion.prepareStatement(query);
-			ps.setInt(1, socio.getCodigo());
-
-			ResultSet resultados = ps.executeQuery();
-
-			if (resultados.next()) {
-				existe = true;
-			}
-
-		} catch (SQLException e) {
-			throw new BDException(BDException.ERROR_QUERY + e.getMessage());
-		} finally {
-			if (conexion != null) {
-				ConfigSQLite.cerrarConexion(conexion);
-			}
-		}
-		return existe;
-	}
 
 	/**
 	 * Metodo que consulta Socios de la BD segun una localidad
@@ -373,14 +375,14 @@ public class AccesoSocio {
 	}
 	
 	
-	public static ArrayList<Socio> consultarSociosMayorPrestamos() throws BDException {
+	public static LinkedHashMap<Socio, Integer> consultarSociosMayorPrestamos() throws BDException {
 		PreparedStatement ps = null;
 	    Connection conexion = null;
-	    ArrayList<Socio> socios = new ArrayList<>();
+	    LinkedHashMap<Socio, Integer> socios = new LinkedHashMap<Socio, Integer>();
  
 	    try {
 	       conexion = ConfigSQLite.abrirConexion();
-	       String query = "SELECT socio.* FROM socio JOIN ("
+	       String query = "SELECT socio.*, total_prestamos FROM socio JOIN ("
 	       		+ "SELECT codigo_socio,COUNT(*) as total_prestamos FROM prestamo GROUP BY codigo_socio HAVING COUNT(*) = "
 	       		+ "(SELECT MAX(total_prestamos) FROM ("
 	       		+ "SELECT COUNT(*) AS total_prestamos FROM prestamo GROUP BY codigo_socio))"
@@ -391,14 +393,14 @@ public class AccesoSocio {
 	        ResultSet resultados = ps.executeQuery();
 	        
 	        while (resultados.next()) {
-	        	socios.add(new Socio(
+	        	socios.put(new Socio(
         			resultados.getInt("codigo"),
 	        		resultados.getString("dni"),
 	        		resultados.getString("nombre"),
 	        		resultados.getString("domicilio"),
 	        		resultados.getString("telefono"),
 	        		resultados.getString("correo")
-    			));
+    			), resultados.getInt("total_prestamos"));
 	        }
 	    } catch (SQLException e) {
 	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());
@@ -410,14 +412,14 @@ public class AccesoSocio {
 	    return socios;
 	}
 	
-	public static ArrayList<Socio> consultarSociosMayorMedia() throws BDException{
+	public static LinkedHashMap<Socio, Integer> consultarSociosMayorMedia() throws BDException{
 		PreparedStatement ps = null;
 	    Connection conexion = null;
-	    ArrayList<Socio> socios = new ArrayList<>();
+	    LinkedHashMap<Socio, Integer> socios = new LinkedHashMap<Socio, Integer>();
  
 	    try {
 	       conexion = ConfigSQLite.abrirConexion();
-	       String query = "SELECT socio.* FROM socio JOIN ("
+	       String query = "SELECT socio.*, total_prestamos FROM socio JOIN ("
 		       		+ "SELECT codigo_socio,COUNT(*) as total_prestamos FROM prestamo GROUP BY codigo_socio HAVING COUNT(*) > "
 		       		+ "(SELECT avg(cantidad) FROM ("
 		       		+ "SELECT COUNT(*) AS cantidad FROM prestamo GROUP BY codigo_socio))"
@@ -428,14 +430,14 @@ public class AccesoSocio {
 	        ResultSet resultados = ps.executeQuery();
 	        
 	        while (resultados.next()) {
-	        	socios.add(new Socio(
+	        	socios.put(new Socio(
         			resultados.getInt("codigo"),
 	        		resultados.getString("dni"),
 	        		resultados.getString("nombre"),
 	        		resultados.getString("domicilio"),
 	        		resultados.getString("telefono"),
 	        		resultados.getString("correo")
-    			));
+    			), resultados.getInt("total_prestamos"));
 	        }
 	    } catch (SQLException e) {
 	        throw new BDException(BDException.ERROR_QUERY + e.getMessage());

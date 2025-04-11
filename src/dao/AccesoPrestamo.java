@@ -162,9 +162,7 @@ public class AccesoPrestamo {
             // comprobamos si la fecha de fin es menor a la fecha 
             DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             LocalDate fechaActual = LocalDate.now();
-            LocalDate fechaFinParseada;
-
-            fechaFinParseada = LocalDate.parse(fechaFin, formato);
+            LocalDate fechaFinParseada = LocalDate.parse(fechaFin, formato);
 
             if (fechaFinParseada.isBefore(fechaActual.plus(Period.ofDays(1)))) {
                 throw new ExcepcionPrestamo(ExcepcionPrestamo.FECHA_MENOR_HOY);
@@ -204,22 +202,31 @@ public class AccesoPrestamo {
 	 * @return false si no se ha actualizado (escribir en base al booleano)
 	 * @throws BDException
 	 */
-	public static boolean actualizarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException {
+	public static boolean actualizarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin) throws BDException, ExcepcionPrestamo {
 		Connection conexion = null;
 		int filasAfectadas = 0;
 		
         try {
             conexion = ConfigSQLite.abrirConexion();
             
+            // comprobamos si la fecha de fin es menor a la fecha 
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate fechaInicioParseada = LocalDate.parse(fechaInicio, formato);
+            LocalDate fechaFinParseada = LocalDate.parse(fechaFin, formato);
+
+            if (fechaFinParseada.isBefore(fechaInicioParseada.plus(Period.ofDays(1)))) {
+                throw new ExcepcionPrestamo(ExcepcionPrestamo.FECHA_MENOR_INICIO);
+            }
+            
             String queryUpdate = "update prestamo "
-            + "set fecha_inicio = ?, fecha_fin = ? "
-            + "where codigo_libro = ? and codigo_socio = ?";
+            + "set fecha_fin = ? "
+            + "where codigo_libro = ? and codigo_socio = ? and fecha_inicio = ?";
             PreparedStatement psInsert = conexion.prepareStatement(queryUpdate);
             
-            psInsert.setString(1,  fechaInicio);
-            psInsert.setString(2, fechaFin);
-            psInsert.setInt(3, codigoLibro);
-            psInsert.setInt(4, codigoSocio);
+            psInsert.setString(1, fechaFin);
+            psInsert.setInt(2, codigoLibro);
+            psInsert.setInt(3, codigoSocio);
+            psInsert.setString(4,  fechaInicio);
             
             filasAfectadas = psInsert.executeUpdate();
         } catch (SQLException e) {
@@ -241,7 +248,7 @@ public class AccesoPrestamo {
 	 * @return false si no se ha eliminado (escribir en base al booleano)
 	 * @throws BDException
 	 */
-	public static boolean eliminarPrestamo(int codigoLibro, int codigoSocio) throws BDException {
+	public static boolean eliminarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio) throws BDException, ExcepcionPrestamo {
 		Connection conexion = null;
 		int filasAfectadas = 0;
 		
@@ -249,13 +256,18 @@ public class AccesoPrestamo {
             conexion = ConfigSQLite.abrirConexion();
             
             String queryDelete = "delete from prestamo "
-            + "where codigo_libro = ? and codigo_socio = ?";
+            + "where codigo_libro = ? and codigo_socio = ? and fecha_inicio = ?";
             PreparedStatement psDelete = conexion.prepareStatement(queryDelete);
             
             psDelete.setInt(1,  codigoLibro);
             psDelete.setInt(2, codigoSocio);
+            psDelete.setString(3, fechaInicio);
             
             filasAfectadas = psDelete.executeUpdate();
+            
+            if (filasAfectadas == 0) {
+            	throw new ExcepcionPrestamo(ExcepcionPrestamo.NO_EXISTE_PRESTAMO);
+            }
         } catch (SQLException e) {
             throw new BDException(BDException.ERROR_QUERY + e.getMessage());
         } finally {

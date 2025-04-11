@@ -19,6 +19,20 @@ public class Socio {
 		this.telefono = telefono;
 		this.correo = correo;
 	}
+	
+	@Override
+	public String toString() {
+
+	    return String.format(
+	        "Socio [Código: %d | DNI: %s | Nombre: %s | Domicilio: %s | Teléfono: %s | Correo: %s]",
+	        codigo, dni, nombre, domicilio, telefono, correo
+	    );
+	}	
+
+@Override public int hashCode(){return Objects.hash(dni);}
+
+@Override public boolean equals(Object obj){if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;Socio other=(Socio)obj;return Objects.equals(dni,other.dni);}
+
 
 	public Socio(String dni,String nombre){
 		this.dni = dni;
@@ -71,20 +85,6 @@ public class Socio {
 
 	public void setCorreo(String correo) {
 		this.correo = correo;
-	}
-
-	@Override
-	public String toString() {
-
-	    return String.format(
-	        "Socio [Código: %d | DNI: %s | Nombre: %s | Teléfono: %s | Correo: %s]",
-	        codigo, dni, nombre, telefono, correo
-	    );
-	}	
-
-@Override public int hashCode(){return Objects.hash(dni);}
-
-@Override public boolean equals(Object obj){if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;Socio other=(Socio)obj;return Objects.equals(dni,other.dni);}
-		
+	}		
 }
 
